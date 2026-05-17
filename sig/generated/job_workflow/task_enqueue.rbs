@@ -6,22 +6,19 @@ module JobWorkflow
 
     attr_reader queue: String?
 
-    attr_reader concurrency: Integer?
-
     # :  (true | false | ^(Context) -> bool | Hash[Symbol, untyped] | nil) -> TaskEnqueue
     def self.from_primitive_value: (true | false | ^(Context) -> bool | Hash[Symbol, untyped] | nil) -> TaskEnqueue
 
+    # : (Hash[Symbol, untyped]) -> void
+    private def self.validate_hash_keys!: (Hash[Symbol, untyped]) -> void
+
     # :  (
     #      ?condition: true | false | ^(Context) -> bool,
-    #      ?queue: String?,
-    #      ?concurrency: Integer?
+    #      ?queue: String?
     #    ) -> void
-    def initialize: (?condition: true | false | ^(Context) -> bool, ?queue: String?, ?concurrency: Integer?) -> void
+    def initialize: (?condition: true | false | ^(Context) -> bool, ?queue: String?) -> void
 
     # :  (Context) -> bool
     def should_enqueue?: (Context) -> bool
-
-    # :  () -> bool
-    def should_limits_concurrency?: () -> bool
   end
 end

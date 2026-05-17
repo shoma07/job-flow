@@ -81,6 +81,27 @@ RSpec.describe JobWorkflow::WorkflowStatus do
         )
       end
     end
+
+    context "when job is a sub task job" do
+      before do
+        adapter.store_job(
+          job_id,
+          {
+            "job_id" => job_id,
+            "class_name" => "JobWorkflow::SubTaskJob",
+            "arguments" => [{}],
+            "status" => :running
+          }
+        )
+      end
+
+      it do
+        expect { find_workflow }.to raise_error(
+          JobWorkflow::WorkflowStatus::NotFoundError,
+          "Workflow with job_id 'abc-123' not found"
+        )
+      end
+    end
   end
 
   describe ".find_by" do
@@ -125,6 +146,22 @@ RSpec.describe JobWorkflow::WorkflowStatus do
     end
 
     context "when job does not exist" do
+      it { is_expected.to be_nil }
+    end
+
+    context "when job is a sub task job" do
+      before do
+        adapter.store_job(
+          job_id,
+          {
+            "job_id" => job_id,
+            "class_name" => "JobWorkflow::SubTaskJob",
+            "arguments" => [{}],
+            "status" => :pending
+          }
+        )
+      end
+
       it { is_expected.to be_nil }
     end
   end

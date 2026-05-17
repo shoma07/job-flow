@@ -2,6 +2,8 @@
 
 JobWorkflow provides a robust API for querying the execution status of workflows. This allows you to monitor running workflows, inspect their state, and build observability dashboards.
 
+`JobWorkflow::WorkflowStatus.find` and `find_by` are root workflow APIs. Pass the root workflow `job_id` only. Async sub-job IDs created by `enqueue: true` are intentionally excluded; inspect those via `JobWorkflow::JobStatus`.
+
 ## Basic Usage
 
 ### Finding a Workflow
@@ -16,6 +18,10 @@ return unless status
 
 # Check workflow status
 status.status  # => :pending, :running, :succeeded, or :failed
+
+# Sub-job IDs are excluded from WorkflowStatus
+JobWorkflow::WorkflowStatus.find_by(job_id: "sub-job-123")
+# => nil
 ```
 
 ### Status Check Methods
@@ -251,7 +257,7 @@ end
 
 ### NotFoundError
 
-When using `find`, a `JobWorkflow::WorkflowStatus::NotFoundError` is raised if the job is not found:
+When using `find`, a `JobWorkflow::WorkflowStatus::NotFoundError` is raised if the job is not found. The same applies if you pass a sub-job `job_id` instead of a root workflow `job_id`:
 
 ```ruby
 begin

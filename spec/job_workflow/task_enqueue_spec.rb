@@ -12,8 +12,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: true,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -24,8 +23,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: false,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -36,8 +34,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: value,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -48,8 +45,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: true,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -60,8 +56,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: false,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -72,8 +67,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: true,
-          queue: "high_priority",
-          concurrency: nil
+          queue: "high_priority"
         )
       end
     end
@@ -82,12 +76,17 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       let(:value) { { concurrency: 5 } }
 
       it do
-        expect(task_enqueue).to have_attributes(
-          condition: true,
-          queue: nil,
-          concurrency: 5
+        expect { task_enqueue }.to raise_error(
+          ArgumentError,
+          "enqueue does not support :concurrency; use throttle instead"
         )
       end
+    end
+
+    context "when value is a Hash with unsupported key" do
+      let(:value) { { queue: "high_priority", priority: 10 } }
+
+      it { expect { task_enqueue }.to raise_error(ArgumentError, "enqueue supports only :condition and :queue") }
     end
 
     context "when value is an empty Hash" do
@@ -96,8 +95,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: false,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -108,8 +106,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: false,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -120,8 +117,7 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       it do
         expect(task_enqueue).to have_attributes(
           condition: false,
-          queue: nil,
-          concurrency: nil
+          queue: nil
         )
       end
     end
@@ -154,54 +150,6 @@ RSpec.describe JobWorkflow::TaskEnqueue do
       let(:task_enqueue) { described_class.new(condition: ->(_ctx) { false }) }
 
       it { is_expected.to be false }
-    end
-  end
-
-  describe "#should_limits_concurrency?" do
-    subject(:should_limits_concurrency) { task_enqueue.should_limits_concurrency? }
-
-    let(:adapter) { JobWorkflow::QueueAdapter.current }
-
-    context "when condition is false" do
-      let(:task_enqueue) { described_class.new(condition: false, concurrency: 3) }
-
-      it { is_expected.to be false }
-    end
-
-    context "when concurrency is nil" do
-      let(:task_enqueue) { described_class.new(condition: true, concurrency: nil) }
-
-      it { is_expected.to be false }
-    end
-
-    context "when adapter does not support concurrency limits" do
-      let(:task_enqueue) { described_class.new(condition: true, concurrency: 3) }
-
-      before do
-        allow(adapter).to receive(:supports_concurrency_limits?).and_return(false)
-      end
-
-      it { is_expected.to be false }
-    end
-
-    context "when adapter supports concurrency limits and all conditions are met" do
-      let(:task_enqueue) { described_class.new(condition: true, concurrency: 3) }
-
-      before do
-        allow(adapter).to receive(:supports_concurrency_limits?).and_return(true)
-      end
-
-      it { is_expected.to be true }
-    end
-
-    context "when condition is a Proc and all conditions are met" do
-      let(:task_enqueue) { described_class.new(condition: ->(_ctx) { true }, concurrency: 3) }
-
-      before do
-        allow(adapter).to receive(:supports_concurrency_limits?).and_return(true)
-      end
-
-      it { is_expected.to be true }
     end
   end
 end

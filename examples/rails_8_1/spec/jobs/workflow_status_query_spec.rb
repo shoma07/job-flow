@@ -91,4 +91,31 @@ RSpec.describe "Workflow Status Query", :async do
       expect(JobWorkflow::WorkflowStatus.find_by(job_id: "non_existent")).to be_nil
     end
   end
+
+  describe "WorkflowStatus with sub-task job ids", :async do
+    let(:workflow_job) { AcceptanceAsyncMapJob.new(values: [1, 2, 3]) }
+    let(:job_id) { workflow_job.job_id }
+    let(:sub_job_id) do
+      status = JobWorkflow::WorkflowStatus.find(job_id)
+      status.job_status.fetch_all(task_name: :async_process).first.job_id
+    end
+
+    before do
+      raise "SolidQueue server not ready" unless solid_queue_ready?
+
+      clean_solid_queue
+      workflow_job.enqueue
+      raise "Job did not complete in time" unless wait_for_job(job_id, timeout: 30)
+    end
+
+    it "returns nil from find_by" do
+      expect(JobWorkflow::WorkflowStatus.find_by(job_id: sub_job_id)).to be_nil
+    end
+
+    it "raises NotFoundError from find" do
+      expect do
+        JobWorkflow::WorkflowStatus.find(sub_job_id)
+      end.to raise_error(JobWorkflow::WorkflowStatus::NotFoundError)
+    end
+  end
 end

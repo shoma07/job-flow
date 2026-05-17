@@ -54,9 +54,9 @@ task :process_items,
 end
 ```
 
-### Asynchronous Execution with Concurrency
+### Asynchronous Execution with Throttled Concurrency
 
-To execute map task iterations in separate sub-jobs with concurrency control, use the `enqueue:` option with a Hash containing `condition:` and `concurrency:`:
+To execute map task iterations in separate sub-jobs, enable `enqueue:` and use `throttle:` when you need to cap concurrent execution:
 
 ```ruby
 # Simplest form: enable parallel execution with default settings
@@ -69,21 +69,23 @@ end
 # Process up to 10 items concurrently in sub-jobs
 task :process_items,
      each: ->(ctx) { ctx.arguments.items },
-     enqueue: { condition: ->(_ctx) { true }, concurrency: 10 } do |ctx|
+     enqueue: true,
+     throttle: 10 do |ctx|
   process_item(ctx.each_value)
 end
 
-# Simplified syntax when condition is implicitly true
+# Conditional enqueue with a concurrency cap
 task :process_items,
      each: ->(ctx) { ctx.arguments.items },
-     enqueue: { concurrency: 10 } do |ctx|
+     enqueue: { condition: ->(ctx) { ctx.arguments.use_async? } },
+     throttle: 10 do |ctx|
   process_item(ctx.each_value)
 end
 
 # When enqueue is enabled:
 # - Each iteration is executed in a separate sub-job
 # - Sub-jobs are created via perform_all_later
-# - Concurrency limit controls how many sub-jobs run in parallel
+# - `throttle` controls how many iterations can execute concurrently
 # - Parent job waits for all sub-jobs to complete before continuing
 # - Outputs from sub-jobs are automatically collected
 ```
@@ -99,14 +101,18 @@ The `enqueue:` option determines how map task iterations are executed:
 
 - **`enqueue: true`**: Each iteration is enqueued as a separate sub-job with default settings
   - Simplest way to enable parallel execution
-  - No concurrency limit (executes as fast as workers allow)
+  - No throttle limit (executes as fast as workers allow)
   - Good for I/O-bound operations with many workers
 
-- **`enqueue: { condition: ->(_ctx) { true }, concurrency: 10 }`**: Each iteration is enqueued as a separate sub-job
-  - Enables true parallel execution across multiple workers
+- **`enqueue: { condition: ... }`**: Each iteration is enqueued as a separate sub-job when the condition passes
   - Better for I/O-bound operations (API calls, database queries)
-  - Can accept dynamic condition: `enqueue: { condition: ->(ctx) { ctx.arguments.use_concurrency? } }`
-  - Supports `queue:` option for custom queue: `enqueue: { queue: "critical", concurrency: 5 }`
+  - Can accept dynamic condition: `enqueue: { condition: ->(ctx) { ctx.arguments.use_async? } }`
+  - Supports `queue:` option for custom queue: `enqueue: { queue: "critical" }`
+
+- **`throttle: 10`**: Limits how many task executions can run concurrently
+  - This is the official way to cap async map task parallelism
+  - It is enforced at perform time via JobWorkflow semaphores
+  - It does not use SolidQueue `ready` / `blocked` dispatch-state controls
 
 **Note**: `enqueue:` works with both regular tasks and map tasks. For map tasks, it enables asynchronous sub-job execution. For regular tasks, it allows conditional enqueueing as a separate job. Legacy syntax (`enqueue: ->(_ctx) { true }` as a Proc) is still supported for backward compatibility.
 
@@ -129,7 +135,8 @@ class ImportJob < ApplicationJob
 
   task :process_items,
        each: ->(ctx) { ctx.arguments.items },
-       enqueue: { concurrency: 5 },
+       enqueue: true,
+       throttle: 5,
        output: { result: "String" } do |ctx|
     { result: process(ctx.each_value) }
   end
@@ -238,7 +245,8 @@ class DataProcessingJob < ApplicationJob
   task :process_by_region,
        each: ->(ctx) { ctx.arguments.regions },
        output: { region: "String", results: "Array[Hash]" },
-       enqueue: { concurrency: 5 } do |ctx|
+       enqueue: true,
+       throttle: 5 do |ctx|
     region = ctx.each_value
     # This will create sub-tasks for each region
     { region: region, results: [] }
@@ -261,7 +269,8 @@ class DataProcessingJob < ApplicationJob
        },
        depends_on: [:process_by_region],
        output: { region: "String", data_type: "String", result: "Hash" },
-       enqueue: { concurrency: 10 } do |ctx|
+       enqueue: true,
+       throttle: 10 do |ctx|
     item = ctx.each_value
     region = item[:region]
     data_type = item[:data_type]
@@ -290,7 +299,7 @@ DataProcessingJob.perform_later(
   regions: ["us-east-1", "us-west-1", "eu-west-1"],
   data_types: ["user", "order", "product"]
 )
-# => 3 regions × 3 data types = 9 parallel iterations (with concurrency limits)
+# => 3 regions × 3 data types = 9 parallel iterations (with throttled concurrency)
 ```
 
 ### Advanced Matrix with Filtering
@@ -318,7 +327,8 @@ task :process_filtered_matrix,
        end
      },
      output: { region: "String", data_type: "String", status: "Symbol" },
-     enqueue: { concurrency: 10 } do |ctx|
+     enqueue: true,
+     throttle: 10 do |ctx|
   combo = ctx.each_value
   region = combo[:region]
   data_type = combo[:data_type]
@@ -335,9 +345,9 @@ end
 
 When implementing matrix processing:
 
-1. **Concurrency Control**: Set appropriate `concurrency:` limits to avoid overwhelming workers
-   - High concurrency (20+): Suitable for I/O-bound operations (API calls, database queries)
-   - Low concurrency (2-5): Better for CPU-bound operations or rate-limited APIs
+1. **Concurrency Control**: Set appropriate `throttle:` limits to avoid overwhelming workers
+   - High throttle (20+): Suitable for I/O-bound operations (API calls, database queries)
+   - Low throttle (2-5): Better for CPU-bound operations or rate-limited APIs
 
 2. **Output Size**: Watch out for large output collections
    - With N×M combinations, the output array will have N×M elements
@@ -348,7 +358,8 @@ When implementing matrix processing:
    task :process_matrix,
         each: ->(_ctx) { combinations },
         timeout: 300.seconds,  # 5 minutes per iteration
-        enqueue: { concurrency: 5 } do |ctx|
+        enqueue: true,
+        throttle: 5 do |ctx|
      # ...
    end
    ```
@@ -358,7 +369,8 @@ When implementing matrix processing:
    task :process_matrix,
         each: ->(_ctx) { combinations },
         retry: { count: 3, strategy: :exponential },
-        enqueue: { concurrency: 5 } do |ctx|
+        enqueue: true,
+        throttle: 5 do |ctx|
      # ...
    end
    ```

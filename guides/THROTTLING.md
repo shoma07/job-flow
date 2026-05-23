@@ -2,6 +2,8 @@
 
 JobWorkflow provides semaphore-based throttling to handle external API rate limits and protect shared resources. Throttling works across multiple jobs and workers, ensuring system-wide rate limiting.
 
+For async map tasks (`enqueue: true`), `throttle` is also the official way to cap concurrent sub-job execution. This limit is enforced at perform time by JobWorkflow semaphores, not by SolidQueue's ready/blocked dispatch-state controls.
+
 ## Task-Level Throttling
 
 ### Simple Integer Syntax (Recommended)
@@ -113,6 +115,28 @@ end
 # With 100 IDs and throttle: 5
 # → Max 5 concurrent API calls at any time
 ```
+
+### Throttling Async Sub-Tasks
+
+When a map task runs as sub-jobs, combine `enqueue: true` with `throttle`:
+
+```ruby
+class AsyncBatchFetchJob < ApplicationJob
+  include JobWorkflow::DSL
+
+  argument :ids, "Array[Integer]"
+
+  task :fetch_all,
+       each: ->(ctx) { ctx.arguments.ids },
+       enqueue: true,
+       throttle: 5,
+       output: { data: "Hash" } do |ctx|
+    { data: RateLimitedAPI.fetch(ctx.each_value) }
+  end
+end
+```
+
+This keeps sub-job fan-out while ensuring only 5 iterations execute at the same time across workers.
 
 ## Runtime Throttling
 

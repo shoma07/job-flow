@@ -168,13 +168,13 @@ RSpec.describe JobWorkflow::DSL do
         task
         workflow_task = klass._workflow.tasks[0]
         expect(workflow_task).to have_attributes(each: be_instance_of(Proc))
-          .and have_attributes(enqueue: have_attributes(concurrency: nil))
+          .and have_attributes(enqueue: have_attributes(queue: nil))
       end
     end
 
-    context "with each and concurrency options without limits_concurrency" do
+    context "with each and enqueue true" do
       subject(:task) do
-        klass.task :example_task, each: ->(ctx) { ctx.arguments.items }, enqueue: { concurrency: 3 } do |ctx|
+        klass.task :example_task, each: ->(ctx) { ctx.arguments.items }, enqueue: true, throttle: 3 do |ctx|
           ctx.sum = ctx.sum + ctx.each_value
         end
       end
@@ -183,11 +183,12 @@ RSpec.describe JobWorkflow::DSL do
         task
         workflow_task = klass._workflow.tasks[0]
         expect(workflow_task).to have_attributes(each: be_instance_of(Proc))
-          .and have_attributes(enqueue: have_attributes(concurrency: 3))
+          .and have_attributes(enqueue: have_attributes(condition: true))
+          .and have_attributes(throttle: have_attributes(limit: 3))
       end
     end
 
-    context "with each and concurrency options calling workflow_concurrency" do
+    context "with unsupported enqueue concurrency option" do
       subject(:task) do
         klass.task(
           :example_task,
@@ -198,42 +199,8 @@ RSpec.describe JobWorkflow::DSL do
         end
       end
 
-      before do
-        stub_const("SolidQueue", Module.new)
-        allow(klass).to receive(:limits_concurrency).and_return(nil)
-      end
-
       it do
-        task
-        expect(klass).to have_received(:limits_concurrency).with(to: 3, key: be_instance_of(Proc)).once
-      end
-    end
-
-    context "with each and concurrency key Proc invocation via workflow_concurrency" do
-      let(:captured_proc) do
-        proc_holder = nil
-        allow(klass).to receive(:limits_concurrency) { |**args| proc_holder = args[:key] }
-        klass.task(
-          :example_task,
-          each: ->(ctx) { ctx.arguments.items },
-          enqueue: { condition: ->(_ctx) { true }, concurrency: 2 }
-        ) { |_ctx| nil }
-        proc_holder
-      end
-
-      before do
-        stub_const("SolidQueue", Module.new)
-      end
-
-      it "returns concurrency_key from _context when _context is present" do
-        job = klass.new(sum: 0, items: [1])
-        job._context = JobWorkflow::Context.from_hash(job: job, workflow: klass._workflow)
-        expect(job.instance_exec(&captured_proc)).to be_nil
-      end
-
-      it "returns nil when _context is nil" do
-        job = klass.new(sum: 0, items: [1])
-        expect(job.instance_exec(&captured_proc)).to be_nil
+        expect { task }.to raise_error(ArgumentError, "enqueue does not support :concurrency; use throttle instead")
       end
     end
 

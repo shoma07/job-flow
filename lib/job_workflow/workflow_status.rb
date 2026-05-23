@@ -24,6 +24,7 @@ module JobWorkflow
       def find_by(job_id:)
         data = QueueAdapter.current.find_job(job_id)
         return if data.nil?
+        return if data["class_name"] == JobWorkflow::SubTaskJob.name
 
         WorkflowStatus.from_job_data(data)
       end

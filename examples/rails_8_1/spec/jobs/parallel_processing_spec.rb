@@ -189,4 +189,27 @@ RSpec.describe "Parallel Processing" do
       end
     end
   end
+
+  describe "Invalid enqueue concurrency option" do
+    let(:invalid_job_definition) do
+      Class.new(ApplicationJob) do
+        include JobWorkflow::DSL
+
+        argument :values, "Array[Integer]"
+
+        task :async_process,
+             each: ->(ctx) { ctx.arguments.values },
+             enqueue: { concurrency: 5 },
+             output: { computed: "Integer" } do |ctx|
+          { computed: ctx.each_value * 2 }
+        end
+      end
+    end
+
+    it "raises an error and directs users to throttle" do
+      expect do
+        stub_const("InvalidAsyncMapJob", invalid_job_definition)
+      end.to raise_error(ArgumentError, "enqueue does not support :concurrency; use throttle instead")
+    end
+  end
 end

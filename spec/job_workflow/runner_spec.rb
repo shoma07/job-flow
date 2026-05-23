@@ -630,7 +630,7 @@ RSpec.describe JobWorkflow::Runner do
       end
     end
 
-    context "when task has each and concurrency options" do
+    context "when task has each and enqueue enabled" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
@@ -640,7 +640,8 @@ RSpec.describe JobWorkflow::Runner do
 
           task :process_items,
                each: ->(ctx) { ctx.arguments.items },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { doubled: "Integer" } do |ctx|
             { doubled: (ctx.each_value * 2) }
           end
@@ -667,6 +668,10 @@ RSpec.describe JobWorkflow::Runner do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
+
+          def self.name
+            "TestJob"
+          end
 
           task :producer, output: { value: "Integer" } do |_ctx|
             { value: 5 }
@@ -726,12 +731,29 @@ RSpec.describe JobWorkflow::Runner do
       end
 
       def run_sub_jobs(sub_jobs, consumer_values)
+        store_parent_job if adapter.respond_to?(:store_job)
+
         sub_jobs.each do |sub_job|
           restored_job = sub_job.class.new
           restored_job.deserialize(sub_job.serialize)
           restored_job.perform(sub_job.arguments.first)
           consumer_values << restored_job.output[:consumer].first.value
         end
+      end
+
+      def store_parent_job
+        adapter.store_job(job.job_id, parent_job_data_for_sub_jobs)
+      end
+
+      def parent_job_data_for_sub_jobs
+        {
+          "job_id" => job.job_id,
+          "class_name" => job.class.name,
+          "queue_name" => job.queue_name,
+          "arguments" => ActiveJob::Arguments.serialize([job.arguments.first || {}]),
+          "job_workflow_context" => state.fetch(:persisted_context_data),
+          "status" => :running
+        }
       end
     end
 
@@ -860,7 +882,7 @@ RSpec.describe JobWorkflow::Runner do
       end
     end
 
-    context "when task has output defined with map task (with concurrency)" do
+    context "when task has output defined with async map task" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
@@ -869,7 +891,8 @@ RSpec.describe JobWorkflow::Runner do
 
           task :process_items,
                each: ->(ctx) { ctx.arguments.items },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { result: "Integer" } do |ctx|
             { result: ctx.each_value * 2 }
           end
@@ -915,21 +938,18 @@ RSpec.describe JobWorkflow::Runner do
       end
     end
 
-    context "when task depends on a concurrent map task that needs waiting" do
+    context "when task depends on an async map task that needs waiting" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
-
-          def self.limits_concurrency(to:, key:, **_options)
-            # no-op for testing
-          end
 
           argument :items, "Array[Integer]", default: []
           argument :result, "Integer", default: 0
 
           task :parallel_process,
                each: ->(ctx) { ctx.arguments.items },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { value: "Integer" } do |ctx|
             { value: ctx.each_value * 10 }
           end
@@ -947,7 +967,6 @@ RSpec.describe JobWorkflow::Runner do
       let(:poll_count) { 0 }
 
       before do
-        stub_const("SolidQueue", Module.new)
         stub_const("SolidQueue::Job", Class.new)
         allow(SolidQueue::Job).to receive(:uncached).and_yield
         allow(SolidQueue::Job).to receive(:find_by).and_return(nil)
@@ -1019,7 +1038,7 @@ RSpec.describe JobWorkflow::Runner do
         allow(runner).to receive(:sleep)
       end
 
-      it "waits for concurrent task completion and collects outputs" do
+      it "waits for async task completion and collects outputs" do
         run
         expect(ctx.output[:summarize].first.result).to eq(30)
       end
@@ -1090,21 +1109,18 @@ RSpec.describe JobWorkflow::Runner do
       end
     end
 
-    context "when task depends on concurrent map task that finishes before dependent task starts" do
+    context "when task depends on async map task that finishes before dependent task starts" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
-
-          def self.limits_concurrency(to:, key:, **_options)
-            # no-op for testing
-          end
 
           argument :items, "Array[Integer]", default: []
           argument :sum, "Integer", default: 0
 
           task :fast_parallel,
                each: ->(ctx) { ctx.arguments.items },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { value: "Integer" } do |ctx|
             { value: ctx.each_value }
           end
@@ -1122,7 +1138,6 @@ RSpec.describe JobWorkflow::Runner do
       let(:created_job_ids) { [] }
 
       before do
-        stub_const("SolidQueue", Module.new)
         stub_const("SolidQueue::Job", Class.new)
         allow(SolidQueue::Job).to receive(:uncached).and_yield
         allow(SolidQueue::Job).to receive(:find_by).and_return(nil)
@@ -1194,21 +1209,18 @@ RSpec.describe JobWorkflow::Runner do
       end
     end
 
-    context "when multiple tasks run with one depending on already completed concurrent task" do
+    context "when multiple tasks run with one depending on already completed async task" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
-
-          def self.limits_concurrency(to:, key:, **_options)
-            # no-op for testing
-          end
 
           argument :numbers, "Array[Integer]", default: []
           argument :result, "String", default: ""
 
           task :parallel_compute,
                each: ->(ctx) { ctx.arguments.numbers },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { squared: "Integer" } do |ctx|
             { squared: ctx.each_value**2 }
           end
@@ -1231,7 +1243,6 @@ RSpec.describe JobWorkflow::Runner do
       let(:created_jobs) { [] }
 
       before do
-        stub_const("SolidQueue", Module.new)
         stub_const("SolidQueue::Job", Class.new)
         allow(SolidQueue::Job).to receive(:uncached).and_yield
         allow(SolidQueue::Job).to receive(:find_by).and_return(nil)
@@ -1291,20 +1302,16 @@ RSpec.describe JobWorkflow::Runner do
         allow(job).to receive(:step).and_yield(step_mock)
       end
 
-      it "skips waiting for already finished parallel task" do
+      it "skips waiting for already finished async task" do
         run
         expect(ctx.output[:final_task].first.result).to eq("total: 13")
       end
     end
 
-    context "when resuming workflow with already finished parallel task" do
+    context "when resuming workflow with already finished async task" do
       let(:job) do
         klass = Class.new(ActiveJob::Base) do
           include JobWorkflow::DSL
-
-          def self.limits_concurrency(to:, key:, **_options)
-            # no-op for testing
-          end
 
           argument :items, "Array[Integer]", default: []
           argument :sum, "Integer", default: 0
@@ -1316,7 +1323,8 @@ RSpec.describe JobWorkflow::Runner do
 
           task :parallel_work,
                each: ->(ctx) { ctx.arguments.items },
-               enqueue: { condition: ->(_ctx) { true }, concurrency: 2 },
+               enqueue: true,
+               throttle: 2,
                output: { result: "Integer" },
                condition: ->(ctx) { !ctx.arguments.skip_parallel } do |ctx|
             { result: ctx.each_value * 5 }
@@ -1886,7 +1894,10 @@ RSpec.describe JobWorkflow::Runner do
       def verify_sub_jobs_queue(sub_jobs, expected_queue, expected_count)
         expect(sub_jobs).to be_an(Array)
         expect(sub_jobs.size).to eq(expected_count)
-        sub_jobs.each { |sub_job| expect(sub_job.queue_name).to eq(expected_queue) }
+        sub_jobs.each do |sub_job|
+          expect(sub_job).to be_a(JobWorkflow::SubTaskJob)
+          expect(sub_job.queue_name).to eq(expected_queue)
+        end
       end
     end
 
@@ -1924,7 +1935,10 @@ RSpec.describe JobWorkflow::Runner do
       def verify_sub_jobs_queue(sub_jobs, expected_queue, expected_count)
         expect(sub_jobs).to be_an(Array)
         expect(sub_jobs.size).to eq(expected_count)
-        sub_jobs.each { |sub_job| expect(sub_job.queue_name).to eq(expected_queue) }
+        sub_jobs.each do |sub_job|
+          expect(sub_job).to be_a(JobWorkflow::SubTaskJob)
+          expect(sub_job.queue_name).to eq(expected_queue)
+        end
       end
     end
 

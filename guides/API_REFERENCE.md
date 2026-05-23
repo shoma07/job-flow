@@ -18,10 +18,9 @@ task(name, **options, &block)
   - `depends_on` (Symbol | Array[Symbol]): Dependent tasks
   - `each` (Proc): Proc that returns an enumerable for map task execution
   - `enqueue` (Hash | Proc | bool): Controls whether task iterations are enqueued as sub-jobs
-    - Hash format (recommended): `{ condition: Proc, queue: String, concurrency: Integer }`
+    - Hash format (recommended): `{ condition: Proc, queue: String }`
       - `condition` (Proc | bool): Determines if task should be enqueued (default: true if Hash is not empty)
       - `queue` (String): Custom queue name for the task (optional)
-      - `concurrency` (Integer): Concurrency limit for parallel processing (default: unlimited)
     - Proc format (legacy): Proc that returns boolean
     - bool format: true/false for simple cases
     - Default: nil (synchronous execution)
@@ -75,7 +74,8 @@ end
 # Parallel processing with collection
 task :process_items,
      each: ->(ctx) { ctx.arguments.items },
-     enqueue: { concurrency: 5 },
+     enqueue: true,
+     throttle: 5,
      output: { result: "String" } do |ctx|
   item = ctx.each_value
   { result: ProcessService.handle(item) }
@@ -187,7 +187,8 @@ class ImportJob < ApplicationJob
 
   task :process,
        each: ->(ctx) { ctx.arguments.items },
-       enqueue: { concurrency: 5 },
+       enqueue: true,
+       throttle: 5,
        output: { result: "String" } do |ctx|
     { result: handle(ctx.each_value) }
   end
@@ -211,7 +212,8 @@ class BatchImportJob < ApplicationJob
 
   task :process,
        each: ->(ctx) { ctx.arguments.items },
-       enqueue: { concurrency: 5 },
+       enqueue: true,
+       throttle: 5,
        output: { result: "String" } do |ctx|
     { result: handle(ctx.each_value) }
   end
@@ -228,7 +230,8 @@ argument :items, "Array[String]"
 
 task :process_items,
      each: ->(ctx) { ctx.arguments.items },
-     enqueue: { concurrency: 5 },
+     enqueue: true,
+     throttle: 5,
      output: { result: "String", status: "Symbol" } do |ctx|
   item = ctx.each_value
   {

@@ -14,7 +14,8 @@ class ExampleJob < ApplicationJob
 
   task :process_items,
        each: ->(ctx) { ctx.arguments.items },
-       enqueue: { concurrency: 5 },
+       enqueue: true,
+       throttle: 5,
        output: { result: "Integer" } do |ctx|
     # This creates many sub-jobs
     { result: ctx.each_value * 2 }
@@ -172,7 +173,8 @@ class DataPipelineJob < ApplicationJob
   # Extract data from multiple sources in parallel
   task :extract_data,
        each: ->(ctx) { %w[users orders products inventory] },
-       enqueue: { concurrency: 4 },
+       enqueue: true,
+       throttle: 4,
        output: { source: "String", count: "Integer" } do |ctx|
     source = ctx.each_value
     data = DataSource.fetch(source, date: ctx.arguments.date)
@@ -210,10 +212,11 @@ class APIAggregatorJob < ApplicationJob
 
   argument :user_ids, "Array[Integer]"
 
-  # Fetch user data with rate limiting
+  # Fetch user data with rate limiting.
+  # Async fan-out is unbounded here; the official execution cap is throttle: 5.
   task :fetch_users,
        each: ->(ctx) { ctx.arguments.user_ids },
-       enqueue: { concurrency: 10 },
+       enqueue: true,
        throttle: { key: "external_api", limit: 5 },
        output: { user_id: "Integer", data: "Hash" } do |ctx|
     user_id = ctx.each_value
@@ -270,7 +273,8 @@ dependency_wait: { poll_timeout: 60, reschedule_delay: 10 }
 # ✅ Good: dependency_wait with parallel sub-jobs
 task :process,
      each: ->(ctx) { ctx.arguments.items },
-     enqueue: { concurrency: 10 } do |ctx|
+     enqueue: true,
+     throttle: 10 do |ctx|
   heavy_process(ctx.each_value)
 end
 

@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+### Added
+
+- Add `JobWorkflow::SubTaskJob` for `enqueue: true` task fan-out so each-task sub-jobs run on a dedicated job class instead of reusing the workflow DSL job class directly
+
+### Changed
+
+- Route enqueued each-task execution through `SubTaskJob`, restoring workflow/task context from the parent workflow job and keeping parent/sub-job identity separate during async execution
+- Remove `enqueue: { concurrency: N }`. Async map task fan-out is still controlled by `enqueue`, but execution caps are now configured exclusively with `throttle`.
+- `WorkflowStatus.find` / `find_by` are now root-workflow-only APIs. Sub-task job IDs are excluded and should be tracked via `JobStatus`.
+
 ## [0.5.0] - 2026-05-13
 
 ### Added

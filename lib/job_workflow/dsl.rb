@@ -156,10 +156,6 @@ module JobWorkflow
           dry_run:
         )
         _workflow.add_task(new_task)
-        if new_task.enqueue.should_limits_concurrency? # rubocop:disable Style/GuardClause
-          concurrency = new_task.enqueue.concurrency #: Integer
-          workflow_concurrency(to: concurrency, key: :concurrency_key.to_proc)
-        end
       end
       # rubocop:enable Metrics/ParameterLists
 

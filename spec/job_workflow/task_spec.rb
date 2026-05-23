@@ -449,8 +449,8 @@ RSpec.describe JobWorkflow::Task do
     end
   end
 
-  describe "#enqueue_concurrency" do
-    subject(:enqueue_concurrency) { task.enqueue.concurrency }
+  describe "#enqueue" do
+    subject(:task_enqueue) { task.enqueue }
 
     let(:task) { described_class.new(**arguments) }
 
@@ -464,10 +464,10 @@ RSpec.describe JobWorkflow::Task do
         }
       end
 
-      it { is_expected.to be_nil }
+      it { expect(task_enqueue.queue).to be_nil }
     end
 
-    context "when enqueue is a Hash without concurrency" do
+    context "when enqueue is a Hash without unsupported options" do
       let(:arguments) do
         {
           job_name: "TestJob",
@@ -477,7 +477,7 @@ RSpec.describe JobWorkflow::Task do
         }
       end
 
-      it { is_expected.to be_nil }
+      it { expect(task_enqueue.queue).to eq(:critical) }
     end
 
     context "when enqueue is a Hash with concurrency" do
@@ -490,7 +490,9 @@ RSpec.describe JobWorkflow::Task do
         }
       end
 
-      it { is_expected.to eq(10) }
+      it do
+        expect { task }.to raise_error(ArgumentError, "enqueue does not support :concurrency; use throttle instead")
+      end
     end
 
     context "when enqueue is a Hash with queue, condition, and concurrency" do
@@ -503,7 +505,9 @@ RSpec.describe JobWorkflow::Task do
         }
       end
 
-      it { is_expected.to eq(5) }
+      it do
+        expect { task }.to raise_error(ArgumentError, "enqueue does not support :concurrency; use throttle instead")
+      end
     end
   end
 

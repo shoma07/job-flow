@@ -1,0 +1,57 @@
+<section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+  <div>
+    <div class="text-body-secondary small mb-1">Workflow</div>
+    <h1 class="display-6 fw-semibold mb-2"><%= @workflow.name %></h1>
+    <p class="text-body-secondary mb-0">Paginated root executions. sub task jobs appear only inside execution detail.</p>
+  </div>
+  <div>
+    <%= link_to "Back to workflows", root_path, class: "btn btn-outline-secondary" %>
+  </div>
+</section>
+
+<div class="card jw-card">
+  <div class="card-body p-0">
+    <% if @executions.empty? %>
+      <div class="p-4 text-body-secondary">No currently available workflow executions.</div>
+    <% else %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Status</th>
+              <th>Current task</th>
+              <th>Queue</th>
+              <th>Job</th>
+              <th class="text-end pe-4">Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @executions.each do |execution| %>
+              <% status_class = case execution.workflow_status
+                               when :succeeded then "text-bg-success"
+                               when :failed then "text-bg-danger"
+                               when :running then "text-bg-primary"
+                               else "text-bg-secondary"
+                               end %>
+              <tr>
+                <td class="ps-4"><span class="badge <%= status_class %>"><%= execution.workflow_status %></span></td>
+                <td><%= execution.current_task_name || "-" %></td>
+                <td><span class="jw-mono"><%= execution.queue_name || "-" %></span></td>
+                <td class="jw-mono"><%= execution.job_id %></td>
+                <td class="text-end pe-4">
+                  <%= link_to "Open", workflow_execution_path(@workflow.name, execution.job_id), class: "btn btn-sm btn-primary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @page.next_cursor %>
+  <div class="d-flex justify-content-end mt-3">
+    <%= link_to "Next page", workflow_executions_path(@workflow.name, cursor: @page.next_cursor), class: "btn btn-outline-primary" %>
+  </div>
+<% end %>

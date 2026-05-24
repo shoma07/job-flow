@@ -77,6 +77,11 @@ module JobWorkflow
         raise NotImplementedError, "#{self.class}#find_job must be implemented"
       end
 
+      #:  (job_class_name: String, limit: Integer, cursor: String?) -> Hash[Symbol, untyped]
+      def fetch_root_workflow_job_page(job_class_name:, limit:, cursor:)
+        raise NotImplementedError, "#{self.class}#fetch_root_workflow_job_page must be implemented"
+      end
+
       #:  (Array[String]) -> Array[Hash[String, untyped]]
       def fetch_job_contexts(_job_ids)
         raise NotImplementedError, "#{self.class}#fetch_job_contexts must be implemented"

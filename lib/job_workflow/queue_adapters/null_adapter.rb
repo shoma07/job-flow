@@ -90,6 +90,17 @@ module JobWorkflow
         @stored_jobs[job_id]
       end
 
+      #:  (job_class_name: String, limit: Integer, cursor: String?) -> Hash[Symbol, untyped]
+      def fetch_root_workflow_job_page(job_class_name:, limit:, cursor:)
+        jobs = @stored_jobs.values.select { |job| job["class_name"] == job_class_name }.reverse
+        offset = cursor.nil? ? 0 : cursor.to_i
+        page_jobs = jobs.slice(offset, limit + 1) || []
+        {
+          jobs: page_jobs.first(limit),
+          next_cursor: page_jobs.size > limit ? (offset + limit).to_s : nil
+        }
+      end
+
       #:  (Array[String]) -> Array[Hash[String, untyped]]
       def fetch_job_contexts(_job_ids)
         []

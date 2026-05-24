@@ -1,0 +1,14 @@
+# Generated from lib/job_workflow/monitoring/execution_page.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class ExecutionPage
+      attr_reader executions: Array[ExecutionViewModel]
+
+      attr_reader next_cursor: String?
+
+      # :  (executions: Array[ExecutionViewModel], next_cursor: String?) -> void
+      def initialize: (executions: Array[ExecutionViewModel], next_cursor: String?) -> void
+    end
+  end
+end

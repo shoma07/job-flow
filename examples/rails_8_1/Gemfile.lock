@@ -116,6 +116,10 @@ GEM
       activesupport (>= 6.1)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
+    importmap-rails (2.2.3)
+      actionpack (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      railties (>= 6.0.0)
     io-console (0.8.2)
     irb (1.16.0)
       pp (>= 0.6.0)
@@ -141,6 +145,16 @@ GEM
     mini_mime (1.1.5)
     minitest (6.0.1)
       prism (~> 1.5)
+    mission_control-jobs (1.1.0)
+      actioncable (>= 7.1)
+      actionpack (>= 7.1)
+      activejob (>= 7.1)
+      activerecord (>= 7.1)
+      importmap-rails (>= 1.2.1)
+      irb (~> 1.13)
+      railties (>= 7.1)
+      stimulus-rails
+      turbo-rails
     mutex_m (0.3.0)
     net-imap (0.6.2)
       date
@@ -176,6 +190,10 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.7.0)
+    propshaft (1.3.1)
+      actionpack (>= 7.0.0)
+      activesupport (>= 7.0.0)
+      rack
     psych (5.3.1)
       date
       stringio
@@ -338,6 +356,8 @@ GEM
       strscan (>= 1.0.0)
       terminal-table (>= 2, < 5)
       uri (>= 0.12.0)
+    stimulus-rails (1.3.4)
+      railties (>= 6.0.0)
     stringio (3.2.0)
     strscan (3.1.6)
     terminal-table (4.0.0)
@@ -345,6 +365,9 @@ GEM
     thor (1.4.0)
     timeout (0.6.0)
     tsort (0.2.0)
+    turbo-rails (2.0.23)
+      actionpack (>= 7.1.0)
+      railties (>= 7.1.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -373,6 +396,8 @@ PLATFORMS
 DEPENDENCIES
   debug
   job-workflow!
+  mission_control-jobs (= 1.1.0)
+  propshaft
   puma (>= 5.0)
   rails (~> 8.1.1)
   rbs

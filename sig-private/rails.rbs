@@ -1,0 +1,5 @@
+module Rails
+  class Engine
+    def self.isolate_namespace: (Module) -> void
+  end
+end

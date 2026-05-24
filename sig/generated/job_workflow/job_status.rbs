@@ -39,6 +39,9 @@ module JobWorkflow
     # :  (Symbol) -> void
     def update_task_job_statuses_from_db: (Symbol) -> void
 
+    # :  () -> void
+    def refresh_from_db!: () -> void
+
     private
 
     attr_accessor task_job_statuses: Hash[Symbol, Array[TaskJobStatus]]

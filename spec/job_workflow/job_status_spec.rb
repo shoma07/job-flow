@@ -357,4 +357,29 @@ RSpec.describe JobWorkflow::JobStatus do
       end
     end
   end
+
+  describe "#refresh_from_db!" do
+    let(:status) do
+      described_class.from_hash_array(
+        [
+          { task_name: :task, job_id: "pending", each_index: 0, status: :pending },
+          { task_name: :task, job_id: "finished", each_index: 1, status: :succeeded }
+        ]
+      )
+    end
+
+    it "refreshes unfinished jobs in one batch and skips missing rows" do
+      adapter = JobWorkflow::QueueAdapters::NullAdapter.new
+      allow(JobWorkflow::QueueAdapter).to receive(:current).and_return(adapter)
+      allow(adapter).to receive(:fetch_job_statuses).with(["pending"]).and_return({})
+      expect { status.refresh_from_db! }.not_to(change { status.fetch(task_name: :task, index: 0).status })
+    end
+
+    it "returns immediately when every job is finished" do
+      finished = described_class.from_hash_array(
+        [{ task_name: :task, job_id: "finished", each_index: 0, status: :succeeded }]
+      )
+      expect(finished.refresh_from_db!).to be_nil
+    end
+  end
 end

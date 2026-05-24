@@ -34,15 +34,33 @@ module JobWorkflow
         job_class_name = data["class_name"]
         job_class = job_class_name.constantize
         workflow = job_class._workflow
+        context = context_from_job_data(data, workflow)
 
+        new(context:, job_class_name:, status: data["status"])
+      end
+
+      private
+
+      #:  (Hash[String, untyped], Workflow) -> Context
+      def context_from_job_data(data, workflow)
         context_data = data["job_workflow_context"] || data["arguments"]&.first&.dig("job_workflow_context")
         context = if context_data
                     Context.deserialize(context_data.merge("workflow" => workflow))
                   else
                     Context.from_hash({ workflow: })
                   end
+        serialized_arguments = workflow_arguments_data(data)
+        return context if serialized_arguments.nil?
 
-        new(context:, job_class_name:, status: data["status"])
+        context._update_arguments(ActiveJob::Arguments.deserialize([serialized_arguments]).first)
+      end
+
+      #:  (Hash[String, untyped]) -> Hash[String, untyped]?
+      def workflow_arguments_data(data)
+        serialized_arguments = data["arguments"]&.first
+        return if serialized_arguments.nil? || serialized_arguments.key?("job_workflow_context")
+
+        serialized_arguments
       end
     end
 

@@ -49,6 +49,9 @@ module JobWorkflow
       # :  (String) -> Hash[String, untyped]?
       def find_job: (String) -> Hash[String, untyped]?
 
+      # :  (job_class_name: String, limit: Integer, cursor: String?) -> Hash[Symbol, untyped]
+      def fetch_root_workflow_job_page: (job_class_name: String, limit: Integer, cursor: String?) -> Hash[Symbol, untyped]
+
       # :  (Array[String]) -> Array[Hash[String, untyped]]
       def fetch_job_contexts: (Array[String]) -> Array[Hash[String, untyped]]
 

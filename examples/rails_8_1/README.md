@@ -83,6 +83,32 @@ bundle exec rake lint
 bundle exec rake
 ```
 
+## Previewing the monitoring UI
+
+The sample app mounts Mission Control Jobs at `/jobs` and the monitoring engine at `/job_workflow`.
+
+```bash
+bundle exec rails db:prepare
+bin/jobs
+bin/rails server
+```
+
+In another terminal, enqueue a workflow:
+
+```bash
+bin/rails runner 'AcceptanceAsyncMapJob.perform_later(values: [1, 2, 3])'
+```
+
+Then open `http://localhost:3000/job_workflow`.
+
+You can also inspect the linked job rows directly in Mission Control Jobs at `http://localhost:3000/jobs`.
+
+To watch fan-out progress while a workflow is still moving, enqueue the slower example:
+
+```bash
+bin/rails runner 'AcceptanceDependencyWaitJob.perform_later(items: [1, 2, 3])'
+```
+
 ## Development workflow
 
 ### 1. Adding a new workflow

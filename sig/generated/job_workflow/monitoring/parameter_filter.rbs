@@ -1,0 +1,16 @@
+# Generated from lib/job_workflow/monitoring/parameter_filter.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class ParameterFilter
+      # : (untyped) -> untyped
+      def self.filter: (untyped) -> untyped
+
+      # : () -> ActiveSupport::ParameterFilter
+      private def self.parameter_filter: () -> ActiveSupport::ParameterFilter
+
+      # : () -> Array[untyped]
+      private def self.filters: () -> Array[untyped]
+    end
+  end
+end

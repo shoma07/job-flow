@@ -85,6 +85,21 @@ module JobWorkflow
       end
     end
 
+    #:  () -> void
+    def refresh_from_db!
+      statuses = flat_task_job_statuses.reject(&:finished?).index_by(&:job_id)
+      return if statuses.empty?
+
+      task_jobs = QueueAdapter.current.fetch_job_statuses(statuses.keys)
+      statuses.each do |job_id, task_job_status|
+        task_job = task_jobs[job_id]
+        next if task_job.nil?
+
+        task_job_status.update_status(QueueAdapter.current.job_status(task_job))
+        update_task_job_status(task_job_status)
+      end
+    end
+
     private
 
     attr_accessor :task_job_statuses #: Hash[Symbol, Array[TaskJobStatus]]

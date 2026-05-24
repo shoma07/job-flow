@@ -160,15 +160,17 @@ module JobWorkflow
         job = without_query_cache { SolidQueue::Job.find_by(active_job_id: job_id) }
         return if job.nil?
 
-        args = job.arguments
-        {
-          "job_id" => job.active_job_id,
-          "class_name" => job.class_name,
-          "queue_name" => job.queue_name,
-          "arguments" => args.is_a?(Hash) ? args["arguments"] : args,
-          "job_workflow_context" => args.is_a?(Hash) ? args["job_workflow_context"] : nil,
-          "status" => job_status(job)
-        }
+        normalized_job_data(job)
+      end
+
+      #:  (job_class_name: String, limit: Integer, cursor: String?) -> Hash[Symbol, untyped]
+      def fetch_root_workflow_job_page(job_class_name:, limit:, cursor:)
+        return { jobs: [], next_cursor: nil } unless defined?(SolidQueue::Job)
+
+        without_query_cache do
+          jobs = root_jobs_relation(job_class_name:, cursor:).limit(limit + 1).to_a
+          build_page(jobs, limit:)
+        end
       end
 
       # @note
@@ -227,6 +229,34 @@ module JobWorkflow
       #:  [T] () { () -> T } -> T
       def without_query_cache(&)
         defined?(SolidQueue::Job) ? SolidQueue::Job.uncached(&) : yield
+      end
+
+      #:  (SolidQueue::Job) -> Hash[String, untyped]
+      def normalized_job_data(job)
+        args = job.arguments
+        {
+          "job_id" => job.active_job_id,
+          "class_name" => job.class_name,
+          "queue_name" => job.queue_name,
+          "arguments" => args.is_a?(Hash) ? args["arguments"] : args,
+          "job_workflow_context" => args.is_a?(Hash) ? args["job_workflow_context"] : nil,
+          "status" => job_status(job)
+        }
+      end
+
+      #:  (job_class_name: String, cursor: String?) -> untyped
+      def root_jobs_relation(job_class_name:, cursor:)
+        relation = SolidQueue::Job.where(class_name: job_class_name)
+        relation = relation.where("id < ?", cursor.to_i) unless cursor.nil?
+        relation.order(id: :desc)
+      end
+
+      #:  (Array[SolidQueue::Job], limit: Integer) -> Hash[Symbol, untyped]
+      def build_page(jobs, limit:)
+        {
+          jobs: jobs.first(limit).map { |job| normalized_job_data(job) },
+          next_cursor: jobs.size > limit ? jobs[limit - 1].id.to_s : nil
+        }
       end
 
       #:  (SolidQueue::Job, _JobInterface, Numeric) -> bool

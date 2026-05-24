@@ -1,0 +1,38 @@
+# Generated from lib/job_workflow/monitoring.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    # :  () -> Array[WorkflowDefinition]
+    def self.workflows: () -> Array[WorkflowDefinition]
+
+    # :  (String?, Symbol?) -> String?
+    def self.mission_control_job_path: (String?, Symbol?) -> String?
+
+    # :  () -> String
+    def self.resolved_base_controller_class: () -> String
+
+    # :  (untyped config) -> void
+    def self.configure_engine_config: (untyped config) -> void
+
+    # :  () -> String?
+    private def self.mission_control_job_route_path: () -> String?
+
+    # :  () -> String?
+    private def self.mission_control_application_id: () -> String?
+
+    # :  () -> String?
+    private def self.mission_control_mount_path: () -> String?
+
+    # :  (String) -> String?
+    private def self.engine_route_path: (String) -> String?
+
+    # :  (untyped) -> String?
+    private def self.normalized_route_path: (untyped) -> String?
+
+    # :  () -> untyped
+    private def self.mission_control_routes: () -> untyped
+
+    # :  () -> untyped
+    private def self.rails_routes: () -> untyped
+  end
+end

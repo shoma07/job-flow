@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "monitoring/engine"
+
 module JobWorkflow
   class Railtie < Rails::Railtie
     config.after_initialize do

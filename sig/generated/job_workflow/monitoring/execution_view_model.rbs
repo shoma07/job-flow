@@ -1,0 +1,108 @@
+# Generated from lib/job_workflow/monitoring/execution_view_model.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class ExecutionViewModel
+      attr_reader job_id: String
+
+      attr_reader queue_name: String?
+
+      attr_reader status: WorkflowStatus
+
+      # :  (job_id: String, queue_name: String?, status: WorkflowStatus) -> void
+      def initialize: (job_id: String, queue_name: String?, status: WorkflowStatus) -> void
+
+      # :  () -> String
+      def job_class_name: () -> String
+
+      # :  () -> Symbol
+      def workflow_status: () -> Symbol
+
+      # :  () -> Symbol?
+      def current_task_name: () -> Symbol?
+
+      # :  () -> Arguments
+      def arguments: () -> Arguments
+
+      # :  () -> Hash[untyped, untyped]
+      def filtered_arguments: () -> Hash[untyped, untyped]
+
+      # :  () -> Array[Hash[Symbol, untyped]]
+      def tasks: () -> Array[Hash[Symbol, untyped]]
+
+      # :  () -> Symbol?
+      def failed_task_name: () -> Symbol?
+
+      # :  () -> String?
+      def mission_control_job_path: () -> String?
+
+      # :  () -> bool
+      def running?: () -> bool
+
+      # :  () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+
+      private
+
+      # :  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Symbol
+      def task_status: (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Symbol
+
+      # :  (Array[TaskOutput], Array[TaskJobStatus]) -> bool
+      def completed_task?: (Array[TaskOutput], Array[TaskJobStatus]) -> bool
+
+      # :  (Symbol, Array[TaskJobStatus]) -> bool
+      def task_running?: (Symbol, Array[TaskJobStatus]) -> bool
+
+      # :  (Symbol) -> bool
+      def current_task_running?: (Symbol) -> bool
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def task_view_model: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def task_configuration_view: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Hash[Symbol, untyped]
+      def task_runtime_view: (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Hash[Symbol, untyped]
+
+      # :  (Symbol) -> [Array[TaskOutput], Array[TaskJobStatus]]
+      def task_state: (Symbol) -> [ Array[TaskOutput], Array[TaskJobStatus] ]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def task_configuration: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def enqueue_configuration: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Task) -> Array[Hash[Symbol, untyped]]
+      def output_configuration: (Task) -> Array[Hash[Symbol, untyped]]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def retry_configuration: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def throttle_configuration: (Task) -> Hash[Symbol, untyped]
+
+      # :  (Task) -> Hash[Symbol, untyped]
+      def dependency_wait_configuration: (Task) -> Hash[Symbol, untyped]
+
+      # :  (untyped) -> untyped
+      def callable_summary: (untyped) -> untyped
+
+      # :  (untyped) -> untyped
+      def primitive_summary: (untyped) -> untyped
+
+      # :  (Array[TaskOutput], Array[TaskJobStatus]) -> Hash[Symbol, Integer]
+      def each_progress: (Array[TaskOutput], Array[TaskJobStatus]) -> Hash[Symbol, Integer]
+
+      # :  (Array[TaskOutput]) -> Array[Hash[Symbol, untyped]]
+      def task_outputs_view: (Array[TaskOutput]) -> Array[Hash[Symbol, untyped]]
+
+      # :  (Array[TaskJobStatus]) -> Array[Hash[Symbol, untyped]]
+      def sub_task_jobs_view: (Array[TaskJobStatus]) -> Array[Hash[Symbol, untyped]]
+
+      # :  (String?, Symbol?) -> String?
+      def mission_control_job_path_for: (String?, Symbol?) -> String?
+    end
+  end
+end

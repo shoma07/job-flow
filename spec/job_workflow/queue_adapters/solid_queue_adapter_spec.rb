@@ -573,6 +573,98 @@ RSpec.describe JobWorkflow::QueueAdapters::SolidQueueAdapter do
     end
   end
 
+  describe "#fetch_root_workflow_job_page" do
+    context "when SolidQueue::Job is not defined" do
+      before { hide_const("SolidQueue::Job") }
+
+      it do
+        expect(adapter.fetch_root_workflow_job_page(job_class_name: "WorkflowJob", limit: 25, cursor: nil))
+          .to eq(jobs: [], next_cursor: nil)
+      end
+    end
+
+    context "when SolidQueue::Job is defined" do
+      let(:solid_queue_job) { Class.new }
+      let(:first_job) { solid_queue_job.new }
+      let(:second_job) { solid_queue_job.new }
+      let(:relation_class) do
+        Class.new do
+          attr_writer :limited_relation
+
+          def order(**)
+            self
+          end
+
+          def where(*_args)
+            self
+          end
+
+          def limit(_value)
+            @limited_relation
+          end
+        end
+      end
+      let(:relation) do
+        relation_class.new.tap do |item|
+          item.limited_relation = [first_job, second_job]
+        end
+      end
+
+      before do
+        stub_const("SolidQueue::Job", solid_queue_job)
+        allow(SolidQueue::Job).to receive(:uncached).and_yield
+        allow(SolidQueue::Job).to receive(:where)
+          .with(class_name: "WorkflowJob").and_return(relation)
+        allow(first_job).to receive_messages(
+          id: 10,
+          active_job_id: "job-1",
+          class_name: "WorkflowJob",
+          queue_name: "default",
+          arguments: { "arguments" => [{ "a" => 1 }] },
+          failed?: false,
+          finished?: false,
+          claimed?: true
+        )
+        allow(second_job).to receive_messages(id: 9)
+      end
+
+      it do
+        expect(adapter.fetch_root_workflow_job_page(job_class_name: "WorkflowJob", limit: 1, cursor: nil)).to eq(
+          jobs: [
+            {
+              "job_id" => "job-1",
+              "class_name" => "WorkflowJob",
+              "queue_name" => "default",
+              "arguments" => [{ "a" => 1 }],
+              "job_workflow_context" => nil,
+              "status" => :running
+            }
+          ],
+          next_cursor: "10"
+        )
+      end
+
+      it "applies the cursor before limiting" do
+        allow(relation).to receive(:where).with("id < ?", 10).and_call_original
+        adapter.fetch_root_workflow_job_page(job_class_name: "WorkflowJob", limit: 1, cursor: "10")
+        expect(relation).to have_received(:where).with("id < ?", 10)
+      end
+
+      it "returns nil cursor on the final page" do
+        relation.limited_relation = [first_job]
+        expect(adapter.fetch_root_workflow_job_page(job_class_name: "WorkflowJob", limit: 1, cursor: nil))
+          .to include(next_cursor: nil)
+      end
+
+      it "normalizes non-hash arguments" do
+        allow(first_job).to receive(:arguments).and_return(["raw"])
+        expect(adapter.send(:normalized_job_data, first_job)).to include(
+          "arguments" => ["raw"], "job_workflow_context" => nil
+        )
+      end
+    end
+  end
+
   describe "#fetch_job_contexts" do
     subject(:fetch_job_contexts) { adapter.fetch_job_contexts(job_ids) }
 

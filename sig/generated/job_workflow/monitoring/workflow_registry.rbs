@@ -1,0 +1,13 @@
+# Generated from lib/job_workflow/monitoring/workflow_registry.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class WorkflowRegistry
+      # :  () -> Array[singleton(DSL)]
+      def self.all: () -> Array[singleton(DSL)]
+
+      # :  (String) -> singleton(DSL)?
+      def self.find: (String) -> singleton(DSL)?
+    end
+  end
+end

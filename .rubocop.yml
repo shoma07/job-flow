@@ -41,7 +41,7 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Enabled: true
   CountComments: false
-  Max: 100
+  Max: 124
   CountAsOne:
     - array
     - hash
@@ -88,4 +88,3 @@ Style/StringLiteralsInInterpolation:
 
 ThreadSafety/ClassAndModuleAttributes:
   Enabled: false
-

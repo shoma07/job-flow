@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JobWorkflow Monitoring</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    >
+    <style>
+      :root {
+        --jw-surface: #f8f9fa;
+        --jw-border: #dee2e6;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at top right, rgba(13, 110, 253, 0.08), transparent 24rem),
+          linear-gradient(180deg, #f8fbff 0%, #f8f9fa 100%);
+      }
+
+      .jw-shell {
+        max-width: 1200px;
+      }
+
+      .jw-mono {
+        font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Consolas, monospace;
+        word-break: break-all;
+      }
+
+      .jw-pre {
+        background: #212529;
+        color: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      .jw-card {
+        border-color: var(--jw-border);
+        box-shadow: 0 0.5rem 1.5rem rgba(33, 37, 41, 0.06);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+      <div class="container-fluid jw-shell px-3 px-lg-4">
+        <a class="navbar-brand fw-semibold" href="<%= root_path %>">JobWorkflow Monitoring</a>
+      </div>
+    </nav>
+
+    <main class="container-fluid jw-shell py-4 py-lg-5 px-3 px-lg-4">
+      <%= yield %>
+    </main>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

@@ -109,6 +109,14 @@ To watch fan-out progress while a workflow is still moving, enqueue the slower e
 bin/rails runner 'AcceptanceDependencyWaitJob.perform_later(items: [1, 2, 3])'
 ```
 
+To inspect a denser branch-and-merge DAG in the monitoring UI, enqueue the richer example:
+
+```bash
+bin/rails runner 'AcceptanceComplexMonitoringDagJob.perform_later(services: %w[api web worker billing], base_version: 10)'
+```
+
+This example renders one setup task, two parallel fan-out branches, two summary joins, and a final publish step.
+
 ## Development workflow
 
 ### 1. Adding a new workflow

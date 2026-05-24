@@ -44,6 +44,57 @@
         border-color: var(--jw-border);
         box-shadow: 0 0.5rem 1.5rem rgba(33, 37, 41, 0.06);
       }
+
+      .jw-dag-viewport {
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+      }
+
+      .jw-dag-canvas {
+        position: relative;
+        min-height: 12rem;
+      }
+
+      .jw-dag-svg {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+      }
+
+      .jw-dag-edge {
+        fill: none;
+        stroke: #adb5bd;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .jw-dag-node {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0.4rem;
+        background: #fff;
+        border: 1px solid var(--jw-border);
+        border-radius: 0.85rem;
+        box-shadow: 0 0.4rem 1rem rgba(33, 37, 41, 0.08);
+        padding: 0.75rem 0.875rem;
+      }
+
+      .jw-dag-node-title {
+        font-size: 0.875rem;
+        line-height: 1.15;
+        max-width: 10rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .jw-dag-node-meta {
+        color: #6c757d;
+        font-size: 0.72rem;
+      }
     </style>
   </head>
   <body>

@@ -57,6 +57,11 @@ module JobWorkflow
         JobWorkflow::Monitoring.mission_control_job_path(job_id, status: workflow_status)
       end
 
+      #:  () -> Hash[Symbol, untyped]
+      def dag_layout
+        @dag_layout ||= DagLayout.new(tasks:).to_h
+      end
+
       #:  () -> bool
       def running?
         workflow_status == :running

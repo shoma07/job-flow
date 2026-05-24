@@ -454,6 +454,18 @@ RSpec.describe JobWorkflow::Monitoring do
       expect(running_execution.send(:sub_task_jobs_view, nil)).to eq([])
     end
 
+    it "exposes DAG layout data for graph rendering" do
+      expect(running_execution.dag_layout).to include(
+        width: 536,
+        height: 116,
+        nodes: include(
+          hash_including(name: :prepare, x: 16, y: 16),
+          hash_including(name: :fan_out, x: 296, y: 16)
+        ),
+        edges: contain_exactly(hash_including(from: :prepare, to: :fan_out))
+      )
+    end
+
     it { expect(running_execution.send(:callable_summary, nil)).to be_nil }
     it { expect(running_execution.send(:callable_summary, :symbolic)).to eq(:symbolic) }
     it { expect(running_execution.send(:primitive_summary, ->(_ctx) { true })).to eq("proc") }

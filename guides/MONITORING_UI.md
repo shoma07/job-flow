@@ -19,7 +19,7 @@ The current scope includes:
 
 - workflow definition list
 - paginated root execution list per workflow
-- execution detail with DAG, task state, arguments, outputs, and failed task
+- execution detail with a DAG overview, task state, arguments, outputs, and failed task
 - fan-out progress and sub-task job links into Mission Control Jobs
 
 History analytics, retries, and dry-run launch flows are out of scope for now.

@@ -36,6 +36,9 @@ module JobWorkflow
       # :  () -> String?
       def mission_control_job_path: () -> String?
 
+      # :  () -> Hash[Symbol, untyped]
+      def dag_layout: () -> Hash[Symbol, untyped]
+
       # :  () -> bool
       def running?: () -> bool
 

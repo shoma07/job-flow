@@ -4,6 +4,7 @@
                  when :running then "text-bg-primary"
                  else "text-bg-secondary"
                  end %>
+<% dag_layout = @execution.dag_layout %>
 
 <section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
   <div>
@@ -54,6 +55,49 @@
 
 <div class="card jw-card">
   <div class="card-header bg-white fw-semibold">DAG</div>
+  <% if dag_layout[:nodes].any? %>
+    <div class="card-body border-bottom" aria-hidden="true">
+      <div class="small text-body-secondary mb-3">graph overview</div>
+      <div class="jw-dag-viewport">
+        <div
+          class="jw-dag-canvas"
+          style="width: <%= dag_layout[:width] %>px; height: <%= dag_layout[:height] %>px;"
+        >
+          <svg
+            class="jw-dag-svg"
+            viewBox="0 0 <%= dag_layout[:width] %> <%= dag_layout[:height] %>"
+            preserveAspectRatio="xMinYMin meet"
+          >
+            <% dag_layout[:edges].each do |edge| %>
+              <path class="jw-dag-edge" d="<%= edge[:path] %>"></path>
+            <% end %>
+          </svg>
+
+          <% dag_layout[:nodes].each do |task| %>
+            <% graph_status_class = case task[:status]
+                                   when :succeeded then "text-bg-success"
+                                   when :failed then "text-bg-danger"
+                                   when :running then "text-bg-primary"
+                                   else "text-bg-secondary"
+                                   end %>
+            <div
+              class="jw-dag-node"
+              style="left: <%= task[:x] %>px; top: <%= task[:y] %>px; width: <%= task[:width] %>px; height: <%= task[:height] %>px;"
+            >
+              <div class="d-flex flex-column align-items-start gap-1">
+                <div class="fw-semibold jw-dag-node-title" title="<%= task[:label] %>"><%= task[:truncated_label] %></div>
+                <span class="badge <%= graph_status_class %>"><%= task[:status] %></span>
+              </div>
+
+              <% if task[:meta_label] %>
+                <div class="jw-dag-node-meta"><%= task[:meta_label] %></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
   <div class="list-group list-group-flush">
     <% @execution.tasks.each do |task| %>
       <% task_status_class = case task[:status]

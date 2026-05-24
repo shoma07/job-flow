@@ -3,6 +3,7 @@
 require_relative "monitoring/workflow_registry"
 require_relative "monitoring/workflow_definition"
 require_relative "monitoring/execution_page"
+require_relative "monitoring/dag_layout"
 require_relative "monitoring/parameter_filter"
 require_relative "monitoring/execution_view_model"
 require_relative "monitoring/execution_registry"

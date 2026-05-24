@@ -155,4 +155,17 @@ RSpec.describe "Throttling" do
       end
     end
   end
+
+  describe AcceptanceThrottleJob do
+    subject(:throttle_result) do
+      workflow_job.perform_now
+      workflow_job.output[:throttled_task].first.result
+    end
+
+    let(:workflow_job) { described_class.new({}) }
+
+    it "executes the acceptance throttle task" do
+      expect(throttle_result).to eq("throttled_done")
+    end
+  end
 end

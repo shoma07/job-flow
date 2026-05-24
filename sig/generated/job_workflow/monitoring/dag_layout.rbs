@@ -1,0 +1,80 @@
+# Generated from lib/job_workflow/monitoring/dag_layout.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class DagLayout
+      NODE_WIDTH: ::Integer
+
+      NODE_HEIGHT: ::Integer
+
+      COLUMN_GAP: ::Integer
+
+      ROW_GAP: ::Integer
+
+      PADDING: ::Integer
+
+      LABEL_LIMIT: ::Integer
+
+      # :  (tasks: Array[Hash[Symbol, untyped]]) -> void
+      def initialize: (tasks: Array[Hash[Symbol, untyped]]) -> void
+
+      # :  () -> Hash[Symbol, untyped]
+      def to_h: () -> Hash[Symbol, untyped]
+
+      private
+
+      attr_reader tasks: Array[Hash[Symbol, untyped]]
+
+      # :  (Array[Hash[Symbol, untyped]]) -> void
+      def validate_tasks!: (Array[Hash[Symbol, untyped]]) -> void
+
+      # :  (Hash[Symbol, untyped], Hash[Symbol, bool]) -> void
+      def validate_dependencies!: (Hash[Symbol, untyped], Hash[Symbol, bool]) -> void
+
+      # :  () -> Array[Hash[Symbol, untyped]]
+      def nodes: () -> Array[Hash[Symbol, untyped]]
+
+      # :  () -> Array[Hash[Symbol, untyped]]
+      def edges: () -> Array[Hash[Symbol, untyped]]
+
+      # :  () -> Hash[Symbol, Hash[Symbol, Integer]]
+      def node_positions: () -> Hash[Symbol, Hash[Symbol, Integer]]
+
+      # :  (Hash[Symbol, untyped], Hash[Symbol, Hash[Symbol, Integer]]) -> Integer
+      def dependency_column: (Hash[Symbol, untyped], Hash[Symbol, Hash[Symbol, Integer]]) -> Integer
+
+      # :  (Symbol, Symbol) -> Hash[Symbol, untyped]
+      def edge_view: (Symbol, Symbol) -> Hash[Symbol, untyped]
+
+      # :  (Hash[Symbol, untyped], Hash[Symbol, untyped]) -> String
+      def edge_path: (Hash[Symbol, untyped], Hash[Symbol, untyped]) -> String
+
+      # :  (Symbol) -> Hash[Symbol, untyped]
+      def node_view: (Symbol) -> Hash[Symbol, untyped]
+
+      # :  () -> Integer
+      def canvas_width: () -> Integer
+
+      # :  () -> Integer
+      def canvas_height: () -> Integer
+
+      # :  (Integer) -> Integer
+      def x_for: (Integer) -> Integer
+
+      # :  (Integer) -> Integer
+      def y_for: (Integer) -> Integer
+
+      # :  (Symbol) -> String
+      def truncate_label: (Symbol) -> String
+
+      # :  (Hash[Symbol, untyped]) -> String?
+      def node_meta_label: (Hash[Symbol, untyped]) -> String?
+
+      # :  () -> String
+      def root_task_label: () -> String
+
+      # :  (Hash[Symbol, Integer]) -> String
+      def each_progress_label: (Hash[Symbol, Integer]) -> String
+    end
+  end
+end

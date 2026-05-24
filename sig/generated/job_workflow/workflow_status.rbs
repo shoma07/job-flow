@@ -22,6 +22,12 @@ module JobWorkflow
     # :  (Hash[String, untyped]) -> WorkflowStatus
     def self.from_job_data: (Hash[String, untyped]) -> WorkflowStatus
 
+    # :  (Hash[String, untyped], Workflow) -> Context
+    private def self.context_from_job_data: (Hash[String, untyped], Workflow) -> Context
+
+    # :  (Hash[String, untyped]) -> Hash[String, untyped]?
+    private def self.workflow_arguments_data: (Hash[String, untyped]) -> Hash[String, untyped]?
+
     # :  (context: Context, job_class_name: String, status: status_type) -> void
     def initialize: (context: Context, job_class_name: String, status: status_type) -> void
 

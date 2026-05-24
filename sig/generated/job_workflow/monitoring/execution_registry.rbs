@@ -1,0 +1,21 @@
+# Generated from lib/job_workflow/monitoring/execution_registry.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class ExecutionRegistry
+      DEFAULT_LIMIT: ::Integer
+
+      # :  (job_class_name: String, ?limit: Integer, ?cursor: String?) -> ExecutionPage
+      def self.page_for: (job_class_name: String, ?limit: Integer, ?cursor: String?) -> ExecutionPage
+
+      # :  (String) -> ExecutionViewModel?
+      def self.find: (String) -> ExecutionViewModel?
+
+      # :  (Hash[String, untyped], ?hydrate_sub_tasks: bool) -> ExecutionViewModel?
+      private def self.build_view_model: (Hash[String, untyped], ?hydrate_sub_tasks: bool) -> ExecutionViewModel?
+
+      # :  (WorkflowStatus) -> void
+      private def self.hydrate_sub_task_state: (WorkflowStatus) -> void
+    end
+  end
+end

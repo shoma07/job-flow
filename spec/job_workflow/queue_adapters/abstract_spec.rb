@@ -79,6 +79,13 @@ RSpec.describe JobWorkflow::QueueAdapters::Abstract do
     it { expect { adapter.find_job("job-id-1") }.to raise_error(NotImplementedError) }
   end
 
+  describe "#fetch_root_workflow_job_page" do
+    it do
+      expect { adapter.fetch_root_workflow_job_page(job_class_name: "Job", limit: 25, cursor: nil) }
+        .to raise_error(NotImplementedError)
+    end
+  end
+
   describe "#fetch_job_contexts" do
     it { expect { adapter.fetch_job_contexts(%w[job-1 job-2]) }.to raise_error(NotImplementedError) }
   end

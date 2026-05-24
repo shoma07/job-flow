@@ -1,0 +1,39 @@
+<section class="mb-4">
+  <h1 class="display-6 fw-semibold mb-2">Workflow Definitions</h1>
+  <p class="text-body-secondary mb-0">Root execution only. Select one workflow, then drill into its executions.</p>
+</section>
+
+<div class="card jw-card">
+  <div class="card-body p-0">
+    <% if @workflows.empty? %>
+      <div class="p-4 text-body-secondary">No workflows are registered.</div>
+    <% else %>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Workflow</th>
+              <th>Tasks</th>
+              <th class="text-end pe-4">Executions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @workflows.each do |workflow| %>
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-semibold"><%= workflow.job_class_name %></div>
+                </td>
+                <td>
+                  <span class="badge text-bg-secondary"><%= workflow.task_count %> tasks</span>
+                </td>
+                <td class="text-end pe-4">
+                  <%= link_to "View executions", workflow_executions_path(workflow.job_class_name), class: "btn btn-sm btn-primary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>

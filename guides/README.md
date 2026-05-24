@@ -127,6 +127,11 @@ Production deployment and operations:
   - Accessing arguments, outputs, and job status
   - Building dashboards and APIs
 
+- **[MONITORING_UI.md](MONITORING_UI.md)** - Monitoring UI for workflow execution
+  - Mounting the engine
+  - Navigating workflow definitions and executions
+  - Viewing DAG state, arguments, outputs, and fan-out progress
+
 - **[TESTING_STRATEGY.md](TESTING_STRATEGY.md)** - Testing your workflows
   - Unit testing individual tasks
   - Integration testing workflows

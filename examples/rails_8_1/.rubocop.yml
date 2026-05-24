@@ -38,6 +38,8 @@ Metrics/BlockLength:
     - array
     - hash
     - heredoc
+  Exclude:
+    - db/queue_schema.rb
 
 Metrics/ClassLength:
   Enabled: true

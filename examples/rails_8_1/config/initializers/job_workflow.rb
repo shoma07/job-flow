@@ -11,3 +11,8 @@ module JobWorkflowInitializer
 end
 
 JobWorkflowInitializer.configure_solid_queue
+
+# Load the sample workflow classes so the monitoring UI can show their definitions in development.
+Rails.application.config.after_initialize do
+  Rails.root.glob("app/jobs/*.rb").each { |path| require path }
+end

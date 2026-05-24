@@ -1,0 +1,18 @@
+# Generated from lib/job_workflow/monitoring/workflow_definition.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class WorkflowDefinition
+      attr_reader job_class: singleton(DSL)
+
+      # :  (job_class: singleton(DSL)) -> void
+      def initialize: (job_class: singleton(DSL)) -> void
+
+      # :  () -> String
+      def job_class_name: () -> String
+
+      # :  () -> Integer
+      def task_count: () -> Integer
+    end
+  end
+end

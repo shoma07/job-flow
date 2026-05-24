@@ -235,6 +235,26 @@ RSpec.describe JobWorkflow::WorkflowStatus do
       it { expect(workflow_status.output[:step_one].first.data).to eq(data: "from_top") }
     end
 
+    context "when serialized ActiveJob arguments are present with context" do
+      let(:context_data) do
+        {
+          "task_context" => { "task_name" => :step_one, "each_index" => 0, "data" => {} },
+          "task_outputs" => [],
+          "task_job_statuses" => []
+        }
+      end
+      let(:job_data) do
+        {
+          "class_name" => "TestWorkflowJob",
+          "arguments" => [{ "user_id" => 42, "_aj_symbol_keys" => ["user_id"] }],
+          "job_workflow_context" => context_data,
+          "status" => :running
+        }
+      end
+
+      it { expect(workflow_status.arguments.user_id).to eq(42) }
+    end
+
     context "when arguments is nil" do
       let(:job_data) do
         { "class_name" => "TestWorkflowJob", "arguments" => nil, "status" => :pending }

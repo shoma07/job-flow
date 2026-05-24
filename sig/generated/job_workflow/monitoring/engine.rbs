@@ -1,0 +1,8 @@
+# Generated from lib/job_workflow/monitoring/engine.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class Engine < ::Rails::Engine
+    end
+  end
+end

@@ -1,0 +1,156 @@
+<% status_class = case @execution.workflow_status
+                 when :succeeded then "text-bg-success"
+                 when :failed then "text-bg-danger"
+                 when :running then "text-bg-primary"
+                 else "text-bg-secondary"
+                 end %>
+
+<section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+  <div>
+    <div class="text-body-secondary small mb-1">Execution</div>
+    <h1 class="display-6 fw-semibold mb-3"><%= @execution.job_class_name %></h1>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="badge <%= status_class %>"><%= @execution.workflow_status %></span>
+      <span class="badge text-bg-light border text-dark">task <%= @execution.current_task_name || "-" %></span>
+      <span class="badge text-bg-light border text-dark">failed <%= @execution.failed_task_name || "-" %></span>
+    </div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <%= link_to "Back to executions", workflow_executions_path(@workflow.name), class: "btn btn-outline-secondary" %>
+    <% if @execution.mission_control_job_path %>
+      <%= link_to "Mission Control Jobs", @execution.mission_control_job_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</section>
+
+<div class="row g-4 mb-4">
+  <div class="col-12 col-xl-4">
+    <div class="card jw-card h-100">
+      <div class="card-header bg-white fw-semibold">Execution Summary</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Job ID</dt>
+          <dd class="col-sm-8 jw-mono"><%= @execution.job_id %></dd>
+          <dt class="col-sm-4">Queue</dt>
+          <dd class="col-sm-8"><%= @execution.queue_name || "-" %></dd>
+          <dt class="col-sm-4">Current</dt>
+          <dd class="col-sm-8"><%= @execution.current_task_name || "-" %></dd>
+          <dt class="col-sm-4">Failed</dt>
+          <dd class="col-sm-8"><%= @execution.failed_task_name || "-" %></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8">
+    <div class="card jw-card h-100">
+      <div class="card-header bg-white fw-semibold">Arguments</div>
+      <div class="card-body">
+        <pre class="jw-pre"><%= JSON.pretty_generate(@execution.filtered_arguments.as_json) %></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card jw-card">
+  <div class="card-header bg-white fw-semibold">DAG</div>
+  <div class="list-group list-group-flush">
+    <% @execution.tasks.each do |task| %>
+      <% task_status_class = case task[:status]
+                            when :succeeded then "text-bg-success"
+                            when :failed then "text-bg-danger"
+                            when :running then "text-bg-primary"
+                            else "text-bg-secondary"
+                            end %>
+      <div class="list-group-item p-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+          <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+              <span class="fw-semibold"><%= task[:name] %></span>
+              <span class="badge <%= task_status_class %>"><%= task[:status] %></span>
+              <% if task[:each] %>
+                <span class="badge text-bg-light border text-dark">
+                  each <%= task[:each_progress][:succeeded] %>/<%= task[:each_progress][:total] %>
+                </span>
+              <% end %>
+            </div>
+            <% if task[:depends_on].any? %>
+              <div class="text-body-secondary small">depends on <%= task[:depends_on].join(", ") %></div>
+            <% end %>
+          </div>
+
+          <% if task[:each] %>
+            <div class="text-lg-end">
+              <div class="small text-body-secondary mb-1">fan-out progress</div>
+              <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="<%= task[:each_progress][:total] %>" aria-valuenow="<%= task[:each_progress][:succeeded] %>">
+                <div
+                  class="progress-bar"
+                  style="width: <%= task[:each_progress][:total].positive? ? (task[:each_progress][:succeeded] * 100 / task[:each_progress][:total]) : 0 %>%"
+                ></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-xl-6">
+            <div class="small text-body-secondary mb-2">configuration</div>
+            <pre class="jw-pre"><%= JSON.pretty_generate(task[:configuration].as_json) %></pre>
+          </div>
+
+          <div class="col-12 col-xl-6">
+            <div class="small text-body-secondary mb-2">progress</div>
+            <pre class="jw-pre"><%= JSON.pretty_generate(task[:each_progress].as_json) %></pre>
+          </div>
+        </div>
+
+        <% if task[:outputs].any? %>
+          <div class="mt-3">
+            <div class="small text-body-secondary mb-2">outputs</div>
+            <pre class="jw-pre"><%= JSON.pretty_generate(task[:outputs].as_json) %></pre>
+          </div>
+        <% end %>
+
+        <% if Array(task[:sub_task_jobs]).any? %>
+          <div class="mt-3">
+            <div class="small text-body-secondary mb-2">sub task jobs</div>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Each</th>
+                    <th>Status</th>
+                    <th>Job ID</th>
+                    <th class="text-end">Mission Control</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% Array(task[:sub_task_jobs]).each do |sub_task_job| %>
+                    <% sub_task_status_class = case sub_task_job[:status]
+                                              when :succeeded then "text-bg-success"
+                                              when :failed then "text-bg-danger"
+                                              when :running then "text-bg-primary"
+                                              else "text-bg-secondary"
+                                              end %>
+                    <tr>
+                      <td><%= sub_task_job[:each_index] %></td>
+                      <td><span class="badge <%= sub_task_status_class %>"><%= sub_task_job[:status] %></span></td>
+                      <td class="jw-mono"><%= sub_task_job[:job_id] %></td>
+                      <td class="text-end">
+                        <% if sub_task_job[:mission_control_job_path] %>
+                          <%= link_to "Open", sub_task_job[:mission_control_job_path], class: "btn btn-sm btn-outline-primary" %>
+                        <% else %>
+                          <span class="text-body-secondary">-</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

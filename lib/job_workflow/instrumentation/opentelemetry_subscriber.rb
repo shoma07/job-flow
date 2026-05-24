@@ -18,7 +18,7 @@ module JobWorkflow
     #
     # @note This subscriber requires the opentelemetry-api gem to be installed.
     #   If not available, subscription will be silently skipped.
-    class OpenTelemetrySubscriber # rubocop:disable Metrics/ClassLength
+    class OpenTelemetrySubscriber
       module Attributes
         JOB_NAME = "#{NAMESPACE}.job.name".freeze #: String
         JOB_ID = "#{NAMESPACE}.job.id".freeze #: String

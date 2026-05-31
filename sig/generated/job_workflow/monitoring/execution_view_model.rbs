@@ -50,8 +50,8 @@ module JobWorkflow
       # :  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Symbol
       def task_status: (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Symbol
 
-      # :  (Array[TaskOutput], Array[TaskJobStatus]) -> bool
-      def completed_task?: (Array[TaskOutput], Array[TaskJobStatus]) -> bool
+      # :  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> bool
+      def completed_task?: (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> bool
 
       # :  (Symbol, Array[TaskJobStatus]) -> bool
       def task_running?: (Symbol, Array[TaskJobStatus]) -> bool

@@ -262,6 +262,19 @@ RSpec.describe JobWorkflow::WorkflowStatus do
 
       it { expect(workflow_status.current_task_name).to be_nil }
     end
+
+    context "when continuation completed tasks are present" do
+      let(:job_data) do
+        {
+          "class_name" => "TestWorkflowJob",
+          "arguments" => [{}],
+          "status" => :running,
+          "continuation" => { "completed" => %w[step_one step_two] }
+        }
+      end
+
+      it { expect(workflow_status.completed_task_names).to eq(%i[step_one step_two]) }
+    end
   end
 
   describe "#status" do

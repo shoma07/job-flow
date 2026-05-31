@@ -371,6 +371,12 @@ RSpec.describe JobWorkflow::Monitoring do
       expect(execution.tasks).to include(hash_including(name: :fan_out, status: :running))
     end
 
+    it "marks a task without outputs as succeeded when continuation tracks it as completed" do
+      status = JobWorkflow::WorkflowStatus.from_job_data(completed_without_output_root_job_data)
+      execution = described_class.new(job_id: "job-4", queue_name: nil, status:)
+      expect(execution.tasks).to include(*completed_without_output_task_statuses)
+    end
+
     it "keeps fan-out running when unfinished child jobs remain after the current task advances" do
       data = root_job_data(job_id: "job-3", status: :running)
       data.fetch("job_workflow_context").fetch("task_context")["task_name"] = "prepare"
@@ -670,6 +676,36 @@ RSpec.describe JobWorkflow::Monitoring do
         "task_job_statuses" => []
       }
     }
+  end
+
+  def completed_without_output_root_job_data
+    {
+      "job_id" => "job-4",
+      "class_name" => "MonitoringWorkflowJob",
+      "queue_name" => "default",
+      "status" => :pending,
+      "continuation" => { "completed" => %w[prepare fan_out] },
+      "job_workflow_context" => {
+        "task_context" => {
+          "task_name" => "fan_out",
+          "parent_job_id" => nil,
+          "index" => 0,
+          "value" => nil,
+          "retry_count" => 0
+        },
+        "task_outputs" => [
+          { "task_name" => "prepare", "each_index" => 0, "data" => { "payload" => "ready" } }
+        ],
+        "task_job_statuses" => []
+      }
+    }
+  end
+
+  def completed_without_output_task_statuses
+    [
+      hash_including(name: :prepare, status: :succeeded),
+      hash_including(name: :fan_out, status: :succeeded)
+    ]
   end
 
   def sub_task_job_record(job_id:, parent_job_id:)

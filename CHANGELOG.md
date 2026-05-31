@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Fixed
+
+- Fix monitoring UI task state rendering so tasks recorded as completed in ActiveJob continuation data no longer appear as `pending` when they have no outputs or sub-task statuses
+
 ## [0.6.0] - 2026-05-24
 
 ### Added

@@ -10,6 +10,7 @@ module JobWorkflow
     attr_reader :context #: Context
     attr_reader :job_class_name #: String
     attr_reader :status #: status_type
+    attr_reader :completed_task_names #: Array[Symbol]
 
     class << self
       #:  (String) -> WorkflowStatus
@@ -36,10 +37,20 @@ module JobWorkflow
         workflow = job_class._workflow
         context = context_from_job_data(data, workflow)
 
-        new(context:, job_class_name:, status: data["status"])
+        new(
+          context:,
+          job_class_name:,
+          status: data["status"],
+          completed_task_names: completed_task_names_from_job_data(data)
+        )
       end
 
       private
+
+      #:  (Hash[String, untyped]) -> Array[Symbol]
+      def completed_task_names_from_job_data(data)
+        Array(data.dig("continuation", "completed")).map(&:to_sym)
+      end
 
       #:  (Hash[String, untyped], Workflow) -> Context
       def context_from_job_data(data, workflow)
@@ -64,11 +75,17 @@ module JobWorkflow
       end
     end
 
-    #:  (context: Context, job_class_name: String, status: status_type) -> void
-    def initialize(context:, job_class_name:, status:)
+    #:  (
+    #      context: Context,
+    #      job_class_name: String,
+    #      status: status_type,
+    #      ?completed_task_names: Array[Symbol]
+    #    ) -> void
+    def initialize(context:, job_class_name:, status:, completed_task_names: [])
       @context = context #: Context
       @job_class_name = job_class_name #: String
       @status = status #: Symbol
+      @completed_task_names = completed_task_names
     end
 
     #:  () -> Symbol?

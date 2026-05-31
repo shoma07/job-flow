@@ -87,16 +87,17 @@ module JobWorkflow
       #:  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> Symbol
       def task_status(task_name, task_outputs, task_job_statuses)
         return :failed if task_job_statuses.any?(&:failed?)
-        return :succeeded if completed_task?(task_outputs, task_job_statuses)
+        return :succeeded if completed_task?(task_name, task_outputs, task_job_statuses)
         return :running if task_running?(task_name, task_job_statuses)
 
         :pending
       end
 
-      #:  (Array[TaskOutput], Array[TaskJobStatus]) -> bool
-      def completed_task?(task_outputs, task_job_statuses)
+      #:  (Symbol, Array[TaskOutput], Array[TaskJobStatus]) -> bool
+      def completed_task?(task_name, task_outputs, task_job_statuses)
         return true if !running? && task_outputs.any?
         return task_job_statuses.all?(&:succeeded?) if task_job_statuses.any?
+        return true if status.completed_task_names.include?(task_name)
 
         task_outputs.any?
       end
@@ -141,12 +142,7 @@ module JobWorkflow
       end
 
       #:  (Symbol) -> [Array[TaskOutput], Array[TaskJobStatus]]
-      def task_state(task_name)
-        [
-          status.output.fetch_all(task_name:),
-          status.job_status.fetch_all(task_name:)
-        ]
-      end
+      def task_state(task_name) = [status.output.fetch_all(task_name:), status.job_status.fetch_all(task_name:)]
 
       #:  (Task) -> Hash[Symbol, untyped]
       def task_configuration(task)

@@ -13,6 +13,8 @@ module JobWorkflow
 
     attr_reader status: status_type
 
+    attr_reader completed_task_names: Array[Symbol]
+
     # :  (String) -> WorkflowStatus
     def self.find: (String) -> WorkflowStatus
 
@@ -22,14 +24,22 @@ module JobWorkflow
     # :  (Hash[String, untyped]) -> WorkflowStatus
     def self.from_job_data: (Hash[String, untyped]) -> WorkflowStatus
 
+    # :  (Hash[String, untyped]) -> Array[Symbol]
+    private def self.completed_task_names_from_job_data: (Hash[String, untyped]) -> Array[Symbol]
+
     # :  (Hash[String, untyped], Workflow) -> Context
     private def self.context_from_job_data: (Hash[String, untyped], Workflow) -> Context
 
     # :  (Hash[String, untyped]) -> Hash[String, untyped]?
     private def self.workflow_arguments_data: (Hash[String, untyped]) -> Hash[String, untyped]?
 
-    # :  (context: Context, job_class_name: String, status: status_type) -> void
-    def initialize: (context: Context, job_class_name: String, status: status_type) -> void
+    # :  (
+    #       context: Context,
+    #       job_class_name: String,
+    #       status: status_type,
+    #       ?completed_task_names: Array[Symbol]
+    #     ) -> void
+    def initialize: (context: Context, job_class_name: String, status: status_type, ?completed_task_names: Array[Symbol]) -> void
 
     # :  () -> Symbol?
     def current_task_name: () -> Symbol?

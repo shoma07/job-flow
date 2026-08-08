@@ -1,0 +1,21 @@
+# Generated from app/controllers/job_workflow/monitoring/executions_controller.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class ExecutionsController < ApplicationController
+      @workflow: singleton(DSL)
+
+      @page: ExecutionPage
+
+      @executions: Array[ExecutionViewModel]
+
+      @execution: ExecutionViewModel
+
+      # :  () -> void
+      def index: () -> void
+
+      # :  () -> void
+      def show: () -> void
+    end
+  end
+end

@@ -31,8 +31,8 @@ module JobWorkflow
     # :  (Hash[Symbol, untyped]) -> Context
     def build_context: (Hash[Symbol, untyped]) -> Context
 
-    # :  (job_class_name: String) -> Workflow
-    def resolve_workflow: (job_class_name: String) -> Workflow
+    # :  (String job_class_name) -> Workflow
+    def resolve_workflow: (String job_class_name) -> Workflow
 
     # :  (Hash[Symbol, untyped]) -> Hash[String, untyped]
     def extract_context_data: (Hash[Symbol, untyped]) -> Hash[String, untyped]

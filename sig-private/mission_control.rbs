@@ -1,0 +1,10 @@
+module MissionControl
+  module Jobs
+    def self.base_controller_class: () -> untyped
+    def self.applications: () -> Array[untyped]
+
+    class Engine
+      def self.routes: () -> untyped
+    end
+  end
+end

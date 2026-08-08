@@ -2,11 +2,13 @@
 
 module JobWorkflow
   module Monitoring
+    def self.base_controller_class: () -> untyped
+
     # :  () -> Array[WorkflowDefinition]
     def self.workflows: () -> Array[WorkflowDefinition]
 
-    # :  (String?, Symbol?) -> String?
-    def self.mission_control_job_path: (String?, Symbol?) -> String?
+    # :  (String?, ?status: Symbol?) -> String?
+    def self.mission_control_job_path: (String?, ?status: Symbol?) -> String?
 
     # :  () -> String
     def self.resolved_base_controller_class: () -> String

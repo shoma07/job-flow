@@ -2,6 +2,8 @@
 
 module JobWorkflow
   module DSL
+    # @rbs @_context: Context?
+
     extend ActiveSupport::Concern
 
     include ActiveJob::Continuable
@@ -19,6 +21,8 @@ module JobWorkflow
     #
     #   def queue_name: () -> String
     #
+    #   def arguments: () -> Array[untyped]
+    #
     #   def set: (Hash[Symbol, untyped]) -> self
     #
     #   def step: (Symbol, ?start: ActiveJob::Continuation::_Succ, ?isolated: bool) -> void
@@ -33,13 +37,13 @@ module JobWorkflow
     #:  (Hash[untyped, untyped]) -> void
     def perform(arguments)
       self._context ||= Context.from_hash({ job: self, workflow: self.class._workflow })
-      context = self._context #: Context
+      context = _context #: Context
       Runner.new(context: context._update_arguments(arguments)).run
     end
 
     #:  () -> Output
     def output
-      context = self._context
+      context = _context
       raise "context is not set." if context.nil?
 
       context.output
@@ -211,14 +215,16 @@ module JobWorkflow
       #   ) -> void
       def workflow_concurrency(to:, key:, **opts)
         concurrency_key_proc = key
+        wrapped_key = proc {
+          # @type self: DSL
+          ctx = _context || Context.from_hash(
+            job: self, workflow: self.class._workflow
+          )._update_arguments((arguments.first || {}).symbolize_keys)
+          concurrency_key_proc.call(ctx)
+        } #: ^(untyped) -> untyped
         limits_concurrency(
           to:,
-          key: proc {
-            ctx = _context || Context.from_hash(
-              job: self, workflow: self.class._workflow
-            )._update_arguments((arguments.first || {}).symbolize_keys)
-            concurrency_key_proc.call(ctx)
-          },
+          key: wrapped_key,
           **opts
         )
       end

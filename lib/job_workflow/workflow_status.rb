@@ -49,7 +49,8 @@ module JobWorkflow
 
       #:  (Hash[String, untyped]) -> Array[Symbol]
       def completed_task_names_from_job_data(data)
-        Array(data.dig("continuation", "completed")).map(&:to_sym)
+        task_names = Array(data.dig("continuation", "completed")) #: Array[String]
+        task_names.map { |task_name| task_name.to_sym } # rubocop:disable Style/SymbolProc
       end
 
       #:  (Hash[String, untyped], Workflow) -> Context

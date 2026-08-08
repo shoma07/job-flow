@@ -3,6 +3,12 @@
 module JobWorkflow
   module Monitoring
     class ExecutionsController < ApplicationController
+      # @rbs @workflow: singleton(DSL)
+      # @rbs @page: ExecutionPage
+      # @rbs @executions: Array[ExecutionViewModel]
+      # @rbs @execution: ExecutionViewModel
+
+      #:  () -> void
       def index
         @workflow = WorkflowRegistry.find(params[:workflow_job_class_name])
         return render plain: "Workflow definition not found.", status: :not_found if @workflow.nil?
@@ -14,6 +20,7 @@ module JobWorkflow
         @executions = @page.executions
       end
 
+      #:  () -> void
       def show
         @workflow = WorkflowRegistry.find(params[:workflow_job_class_name])
         return render plain: "Workflow definition not found.", status: :not_found if @workflow.nil?

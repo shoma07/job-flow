@@ -1,12 +1,11 @@
-# frozen_string_literal: true
+# Generated from app/controllers/job_workflow/monitoring/application_controller.rb with RBS::Inline
 
 module JobWorkflow
   module Monitoring
     # Resolve the host app controller at load time so engine controllers inherit
     # the app's existing authentication and access control hooks.
     # @rbs inherits ActionController::Base
-    class ApplicationController < JobWorkflow::Monitoring.resolved_base_controller_class.constantize
-      layout "job_workflow/monitoring/application"
+    class ApplicationController < ActionController::Base
     end
   end
 end

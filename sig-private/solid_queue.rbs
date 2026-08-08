@@ -102,7 +102,7 @@ module SolidQueue
   end
 
   class Worker
-    def self.on_worker_stop: (Proc) -> void
+    def self.on_stop: () { (Worker) -> void } -> void
     def self.lifecycle_hooks: () -> Hash[Symbol, Array[Proc]]
   end
 end

@@ -10,6 +10,9 @@ require_relative "monitoring/execution_registry"
 
 module JobWorkflow
   module Monitoring
+    # @rbs!
+    #   def self.base_controller_class: () -> untyped
+
     mattr_accessor :base_controller_class
 
     class << self
@@ -18,7 +21,7 @@ module JobWorkflow
         WorkflowRegistry.all.map { |job_class| WorkflowDefinition.new(job_class:) }
       end
 
-      #:  (String?, Symbol?) -> String?
+      #:  (String?, ?status: Symbol?) -> String?
       def mission_control_job_path(job_id, status: nil)
         return if job_id.nil?
 

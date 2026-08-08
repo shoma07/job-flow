@@ -1,5 +1,10 @@
 module ActiveJob
   def self.perform_all_later: (*ActiveJob::Base) -> void
+                            | (Array[ActiveJob::Base]) -> void
+
+  class Base
+    def set: (Hash[Symbol, untyped]) -> self
+  end
 
   module Continuable
     def step: (Symbol, ?start: ActiveJob::Continuation::_Succ, ?isolated: bool) -> void
@@ -15,6 +20,8 @@ module ActiveJob
     end
 
     class Step
+      def cursor: () -> untyped
+
       def advance!: (?from: _Succ?) -> void
 
       def advanced?: () -> bool

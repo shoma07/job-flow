@@ -120,8 +120,7 @@ module JobWorkflow
 
     #:  () -> String
     def job_id
-      local_job = job
-      raise "job is not set" if local_job.nil?
+      local_job = job || (raise "job is not set")
 
       local_job.job_id
     end
@@ -215,11 +214,8 @@ module JobWorkflow
 
     #:  (?Symbol?, ?fallback: untyped) { () -> untyped } -> untyped
     def skip_in_dry_run(dry_run_name = nil, fallback: nil)
-      local_job = job
-      task = task_context.task
-
-      raise "job is not set" if local_job.nil?
-      raise "skip_in_dry_run can be called only within with_task_context" if task.nil?
+      local_job = job || (raise "job is not set")
+      task_context.task || (raise "skip_in_dry_run can be called only within with_task_context")
 
       current_index = skip_in_dry_run_index
       self.skip_in_dry_run_index += 1
@@ -298,7 +294,8 @@ module JobWorkflow
 
     #:  () -> bool
     def each_task?
-      task_context.task.each?
+      task = task_context.task || (raise "each_task? can be called only in task")
+      task.each?
     end
 
     #:  (untyped) -> untyped

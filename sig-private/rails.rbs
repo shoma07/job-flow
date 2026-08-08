@@ -1,5 +1,12 @@
 module Rails
+  def self.application: () -> untyped
+
   class Engine
     def self.isolate_namespace: (Module) -> void
+    def self.config: () -> untyped
+  end
+
+  class Railtie
+    def self.config: () -> untyped
   end
 end

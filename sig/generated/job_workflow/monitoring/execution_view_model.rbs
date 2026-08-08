@@ -3,6 +3,12 @@
 module JobWorkflow
   module Monitoring
     class ExecutionViewModel
+      @dag_layout: Hash[Symbol, untyped]
+
+      @failed_task_name: Symbol?
+
+      @tasks: Array[Hash[Symbol, untyped]]
+
       attr_reader job_id: String
 
       attr_reader queue_name: String?

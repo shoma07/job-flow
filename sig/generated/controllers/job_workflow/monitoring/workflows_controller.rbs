@@ -1,0 +1,12 @@
+# Generated from app/controllers/job_workflow/monitoring/workflows_controller.rb with RBS::Inline
+
+module JobWorkflow
+  module Monitoring
+    class WorkflowsController < ApplicationController
+      @workflows: Array[WorkflowDefinition]
+
+      # :  () -> void
+      def index: () -> void
+    end
+  end
+end

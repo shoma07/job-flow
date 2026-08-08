@@ -3,6 +3,12 @@
 module JobWorkflow
   module Monitoring
     class DagLayout
+      @node_positions: Hash[Symbol, Hash[Symbol, Integer]]
+
+      @edges: Array[Hash[Symbol, untyped]]
+
+      @nodes: Array[Hash[Symbol, untyped]]
+
       NODE_WIDTH: ::Integer
 
       NODE_HEIGHT: ::Integer

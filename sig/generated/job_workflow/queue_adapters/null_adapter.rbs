@@ -4,10 +4,17 @@ module JobWorkflow
   module QueueAdapters
     # rubocop:disable Naming/PredicateMethod
     class NullAdapter < Abstract
+      @stored_jobs: Hash[String, Hash[String, untyped]]
+
+      @queue_jobs: Hash[String, Array[untyped]]
+
+      @paused_queues: Set[String]
+
       # :  () -> void
       def initialize_adapter!: () -> void
 
-      def initialize: () -> untyped
+      # :  () -> void
+      def initialize: () -> void
 
       # :  () -> bool
       def semaphore_available?: () -> bool

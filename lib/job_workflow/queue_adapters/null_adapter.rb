@@ -4,10 +4,15 @@ module JobWorkflow
   module QueueAdapters
     # rubocop:disable Naming/PredicateMethod
     class NullAdapter < Abstract
+      # @rbs @paused_queues: Set[String]
+      # @rbs @queue_jobs: Hash[String, Array[untyped]]
+      # @rbs @stored_jobs: Hash[String, Hash[String, untyped]]
+
       #:  () -> void
       def initialize_adapter!; end
 
-      def initialize # rubocop:disable Lint/MissingSuper
+      #:  () -> void
+      def initialize
         @paused_queues = Set.new #: Set[String]
         @queue_jobs = {} #: Hash[String, Array[untyped]]
         @stored_jobs = {} #: Hash[String, Hash[String, untyped]]

@@ -2,6 +2,8 @@
 
 module JobWorkflow
   module DSL
+    @_context: Context?
+
     extend ActiveSupport::Concern
 
     include ActiveJob::Continuable
@@ -15,6 +17,8 @@ module JobWorkflow
     def job_id: () -> String
 
     def queue_name: () -> String
+
+    def arguments: () -> Array[untyped]
 
     def set: (Hash[Symbol, untyped]) -> self
 

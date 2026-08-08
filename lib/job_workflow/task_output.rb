@@ -9,7 +9,9 @@ module JobWorkflow
     class << self
       #:  (task: Task, each_index: Integer, data: Hash[Symbol, untyped]) -> TaskOutput
       def from_task(task:, data:, each_index:)
-        normalized_data = task.output.to_h { |output_def| [output_def.name, nil] }
+        normalized_data = task.output.to_h do |output_def|
+          [output_def.name, nil] #: [Symbol, nil]
+        end
         normalized_data.merge!(data.slice(*normalized_data.keys))
         new(task_name: task.task_name, each_index:, data: normalized_data)
       end

@@ -14,8 +14,7 @@ module JobWorkflow
   #   JobWorkflow.logger.formatter = JobWorkflow::Logger::JsonFormatter.new(log_tags: [:request_id])
   #   ```
   module Logger
-    #:  (ActiveSupport::Logger) -> void
-    attr_writer :logger
+    attr_writer :logger #: ActiveSupport::Logger
 
     #:  () -> ActiveSupport::Logger
     def logger

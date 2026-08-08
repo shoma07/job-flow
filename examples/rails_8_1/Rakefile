@@ -9,7 +9,7 @@ RSpec::Core::RakeTask.new(:spec)
 require "rubocop/rake_task"
 RuboCop::RakeTask.new(:lint) do |t|
   t.formatters = %w[simple]
-  t.options = %w[--parallel -c .rubocop.yml]
+  t.options = %w[--parallel --ignore-unrecognized-cops -c .rubocop.yml]
 end
 
 namespace :lint do

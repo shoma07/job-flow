@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+## [0.6.2] - 2026-08-09
+
+### Changed
+
+- Extend RBS/Steep type checking to the monitoring Rails controllers and add signatures for Rails, Mission Control Jobs, and Solid Queue integrations
+- Upgrade the RBS inline, Steep, and RuboCop development tooling used by the type and lint checks
+- Keep the Rails 8.1 example app's lint task compatible with the root RuboCop configuration
+
 ## [0.6.1] - 2026-06-01
 
 ### Fixed

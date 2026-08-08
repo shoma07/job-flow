@@ -2,6 +2,8 @@
 
 module JobWorkflow
   class TaskGraph
+    # @rbs @tasks: Hash[Symbol, Task]
+
     include TSort #[Task]
     include Enumerable #[Task]
 

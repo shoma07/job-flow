@@ -3,6 +3,8 @@
 module JobWorkflow
   module AutoScaling
     class Executor
+      @adapter: Adapter::_InstanceMethods
+
       # :  (Configuration) -> void
       def initialize: (Configuration) -> void
 

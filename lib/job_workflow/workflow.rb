@@ -2,6 +2,11 @@
 
 module JobWorkflow
   class Workflow
+    # @rbs @task_graph: TaskGraph
+    # @rbs @argument_defs: Hash[Symbol, ArgumentDef]
+    # @rbs @hook_registry: HookRegistry
+    # @rbs @schedules: Hash[Symbol, Schedule]
+
     attr_reader :dry_run_config #: DryRunConfig
 
     #:  () -> void
@@ -70,7 +75,9 @@ module JobWorkflow
 
     #:  () -> Hash[Symbol, untyped]
     def build_arguments_hash
-      arguments.to_h { |def_obj| [def_obj.name, def_obj.default] }
+      arguments.to_h do |def_obj|
+        [def_obj.name, def_obj.default] #: [Symbol, untyped]
+      end
     end
   end
 end

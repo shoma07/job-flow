@@ -11,6 +11,7 @@ RSpec.describe JobWorkflow::AutoScaling::Adapter::AwsAdapter do
         service: Class.new.new
       }
     end
+
     before do
       stub_const("Aws::ECS::Client", stubs[:client].class)
       allow(Aws::ECS::Client).to receive(:new).and_return(stubs[:client])

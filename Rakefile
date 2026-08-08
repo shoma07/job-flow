@@ -40,7 +40,7 @@ namespace :rbs do
     require "rbs/inline"
     require "rbs/inline/cli"
     FileUtils.rm_r(File.expand_path("sig/generated", __dir__), secure: true)
-    RBS::Inline::CLI.new.run(%w[lib --output --opt-out])
+    RBS::Inline::CLI.new.run(%w[app lib --output --opt-out])
   end
 end
 

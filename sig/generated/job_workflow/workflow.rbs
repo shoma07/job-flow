@@ -2,6 +2,14 @@
 
 module JobWorkflow
   class Workflow
+    @schedules: Hash[Symbol, Schedule]
+
+    @hook_registry: HookRegistry
+
+    @argument_defs: Hash[Symbol, ArgumentDef]
+
+    @task_graph: TaskGraph
+
     attr_reader dry_run_config: DryRunConfig
 
     # :  () -> void

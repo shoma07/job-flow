@@ -67,7 +67,7 @@ module MonitoringControllerLoader
   end
 end
 
-# rubocop:disable RSpec/BeforeAfterAll, RSpec/InstanceVariable
+# rubocop:disable RSpec/InstanceVariable
 RSpec.shared_context "with isolated monitoring controller" do
   before(:context) do
     metadata = self.class.metadata
@@ -84,4 +84,4 @@ RSpec.shared_context "with isolated monitoring controller" do
     )
   end
 end
-# rubocop:enable RSpec/BeforeAfterAll, RSpec/InstanceVariable
+# rubocop:enable RSpec/InstanceVariable

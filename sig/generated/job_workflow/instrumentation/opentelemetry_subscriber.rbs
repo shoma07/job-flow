@@ -70,7 +70,8 @@ module JobWorkflow
       # :  (Hash[Symbol, untyped]) -> Array[untyped?]
       def extract_otel_info: (Hash[Symbol, untyped]) -> Array[untyped?]
 
-      def start_span: (untyped name, untyped payload) -> untyped
+      # :  (String, Hash[Symbol, untyped]) -> untyped
+      def start_span: (String, Hash[Symbol, untyped]) -> untyped
 
       # :  (untyped) -> untyped
       def attach_span_context: (untyped) -> untyped

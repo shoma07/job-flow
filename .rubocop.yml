@@ -8,6 +8,7 @@ AllCops:
   TargetRubyVersion: 3.1
   NewCops: enable
   SuggestExtensions: false
+  UseProjectIndex: true
   Exclude:
     - examples/**/*
     - tmp/**/*
@@ -79,6 +80,15 @@ RSpec/ExampleLength:
 
 Style/Documentation:
   Enabled: false
+
+Style/RbsInline:
+  Mode: opt_out
+
+Style/RbsInline/MissingTypeAnnotation:
+  EnforcedStyle: method_type_signature
+
+Style/RbsInline/RedundantTypeAnnotation:
+  EnforcedStyle: method_type_signature
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

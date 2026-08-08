@@ -3,6 +3,10 @@
 module JobWorkflow
   module Monitoring
     class ExecutionViewModel
+      # @rbs @tasks: Array[Hash[Symbol, untyped]]
+      # @rbs @failed_task_name: Symbol?
+      # @rbs @dag_layout: Hash[Symbol, untyped]
+
       attr_reader :job_id #: String
       attr_reader :queue_name #: String?
       attr_reader :status #: WorkflowStatus
@@ -223,8 +227,8 @@ module JobWorkflow
       def each_progress(task_outputs, task_job_statuses)
         {
           total: [task_outputs.size, task_job_statuses.size].max,
-          succeeded: task_job_statuses.count(&:succeeded?),
-          failed: task_job_statuses.count(&:failed?),
+          succeeded: task_job_statuses.count { |task_job_status| task_job_status.succeeded? }, # rubocop:disable Style/SymbolProc
+          failed: task_job_statuses.count { |task_job_status| task_job_status.failed? }, # rubocop:disable Style/SymbolProc
           pending: task_job_statuses.count { |task_status| task_status.status == :pending },
           running: task_job_statuses.count { |task_status| task_status.status == :running }
         }

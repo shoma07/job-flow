@@ -10,5 +10,9 @@ path: .gem_rbs_collection
 
 gems:
   - name: net-http
+  - name: actionpack
+  - name: actionview
+  - name: rack
   - name: activerecord
+  - name: activemodel
   - name: tsort

@@ -3,6 +3,8 @@
 module JobWorkflow
   module AutoScaling
     class Executor
+      # @rbs @adapter: Adapter::_InstanceMethods
+
       #:  (Configuration) -> void
       def initialize(config)
         @config = config
@@ -36,7 +38,7 @@ module JobWorkflow
 
       #:  () -> Array[Integer]
       def desired_count_list
-        config.min_count.step(config.max_count, config.step_count).to_a
+        config.min_count.step(config.max_count, config.step_count).to_a #: Array[Integer]
       end
     end
   end

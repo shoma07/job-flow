@@ -5,6 +5,10 @@
 target :lib do
   signature "sig"
   signature "sig-private"
+  library "actionpack"
+  library "actionview"
+  library "rack"
 
   check "lib"
+  check "app"
 end

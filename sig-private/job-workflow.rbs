@@ -1,10 +1,11 @@
 module JobWorkflow
   interface _JobInterface
+    def class: () -> untyped
     def job_id: () -> String
     def queue_name: () -> String
     def serialize: () -> Hash[String, untyped]
     def _context: () -> JobWorkflow::Context?
-    def _context=: (JobWorkflow::Context) -> JobWorkflow::Context
+    def _context=: (JobWorkflow::Context) -> void
     def step: (Symbol, ?start: ActiveJob::Continuation::_Succ, ?isolated: bool) -> void
             | (Symbol, ?start: ActiveJob::Continuation::_Succ, ?isolated: bool) { (ActiveJob::Continuation::Step) -> void } -> void
   end

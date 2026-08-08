@@ -3,6 +3,10 @@
 module JobWorkflow
   module Monitoring
     class DagLayout
+      # @rbs @nodes: Array[Hash[Symbol, untyped]]
+      # @rbs @edges: Array[Hash[Symbol, untyped]]
+      # @rbs @node_positions: Hash[Symbol, Hash[Symbol, Integer]]
+
       NODE_WIDTH = 224
       NODE_HEIGHT = 84
       COLUMN_GAP = 56

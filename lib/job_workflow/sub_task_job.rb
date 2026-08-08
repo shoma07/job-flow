@@ -33,7 +33,8 @@ module JobWorkflow
     def perform(arguments)
       payload = arguments.symbolize_keys
       self._context = build_context(payload)
-      Runner.new(context: _context).run
+      context = _context || (raise "context is not set.")
+      Runner.new(context:).run
     end
 
     #:  () -> Output
@@ -73,7 +74,7 @@ module JobWorkflow
              ._update_arguments(payload.except(:job_workflow_context))
     end
 
-    #:  (job_class_name: String) -> Workflow
+    #:  (String job_class_name) -> Workflow
     def resolve_workflow(job_class_name)
       job_class = JobWorkflow::DSL._included_classes.to_a.reverse.find { |klass| klass.name == job_class_name }
       job_class ||= job_class_name.safe_constantize

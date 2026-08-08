@@ -45,6 +45,7 @@ module JobWorkflow
       # @rbs!
       #   def self.subscriptions: () -> Array[untyped]
       #   def self.subscriptions=: (Array[untyped]) -> void
+
       cattr_accessor :subscriptions, instance_accessor: false, default: []
 
       class << self
@@ -110,6 +111,7 @@ module JobWorkflow
         [span, token]
       end
 
+      #:  (String, Hash[Symbol, untyped]) -> untyped
       def start_span(name, payload)
         span_name = build_span_name(name, payload)
         attributes = build_attributes(payload)
